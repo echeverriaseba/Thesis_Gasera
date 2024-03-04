@@ -1,7 +1,7 @@
 # Thesis_Gasera
 GHG emission rate calculation out of Gasera samplings
 
-1. R Project: Thesis_Paper_1_git 
+1. R Project: Thesis_Gasera
 2. /src: R scripts.
 3. /data: data inputs (e.g. .csv, .xlsx)
 4. /outputs: analysis outputs (e.g., plots, .csv, etc.)
