@@ -1,0 +1,4 @@
+EXP,Date,Rep,Treat,Chamber_type,Temp_initial,Temp_final,Chamber_Nr,Rice_cover,Soil_temp,Water_level,Temp_amb_initial,Temp_amb_final,Obs
+MET,2023-07-06,TR,16,MC,29.2,30.3,,,,,,,
+MET,2023-07-07,TR,16,MC,29.9,32.6,4,0.6,26,14,27,,
+MET,2023-07-07,TU,16,MC,31.6,32.1,4,0.6,26.3,14,27,,With atmospheric pressure tube

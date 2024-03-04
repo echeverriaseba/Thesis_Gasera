@@ -1,0 +1,8 @@
+Exp,Date,Rep,Treat,Chamber_type,Temp_initial,Temp_final,Chamber_Nr,Rice_cover,Soil_temp,Water_level,Temp_amb_initial,Temp_amb_final,Obs
+ARE,2023-07-19,R1,AR1,5,37.2,40.7,5,,,,,,
+ARE,2023-07-19,R1,AR2,5,36.2,40.5,5,,,,,,
+ARE,2023-07-19,R1,AR3,5,36.3,39.9,5,,,,,,
+ARE,2023-07-19,R1,AR4,5,34,39.8,5,,,,,,
+ARE,2023-07-19,R1,AR5,5,35.8,39.7,5,,,,,,
+ARE,2023-07-19,R1,AR6,5,35.9,39.7,5,,,,,,
+ARE,2023-07-19,R1,AR7,5,36.1,39.2,5,,,,,,
