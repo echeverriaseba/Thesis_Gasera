@@ -21,7 +21,7 @@ Here the main scripts used for data preparation, plotting and statistical analys
 - for in loops for CH4, N2O and CO2 emission calculations.
 - Accumulated emissions during all the growing season.
 
-### Gasera_vs_Chromn: Water level calculations and emission comparisson among methods
+### Gasera_vs_Chrom: Water level calculations and emission comparisson among methods
 - Inputs:
   a. Emission_rates_w_corrections_2023.RData: Chromatography GHG rates. Previously calculated in Rproject Thesis_Chromatography.
   b. Gasera_emission_rates_2023.RData: Gasera GHG rates. Previously calculated in Main script.
