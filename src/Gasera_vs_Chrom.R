@@ -12,8 +12,8 @@ library(cowplot)
 
 ## Importing Chromatography results from Rproject: Chromatography_results:
 
-load("C:/Users/SECHEVERRIA/OneDrive - IRTA/R/Chromatography_results/outputs/2023/Rates_corrected/Emission_rates_w_corrections_2023.RData")
-load("C:/Users/SECHEVERRIA/OneDrive - IRTA/R/Gasera_results_CERESTRES/outputs/CERESTRES_results/Gasera_emission_rates_2023.RData")
+load("C:/Users/SECHEVERRIA/R_git/Thesis_Chromatography/outputs/2023/Rates_corrected/Emission_rates_w_corrections_2023.RData")
+load("C:/Users/SECHEVERRIA/R_git/Thesis_Gasera/outputs/CERESTRES_results/Gasera_emission_rates_2023.RData")
 
 ## Renaming columns from Emission_rates_w_corrections_2023 dataframe, adding "Chrom_" to differentiate from gasera results:
 Emission_rates_w_corrections_2023 <- Emission_rates_w_corrections_2023 %>%
@@ -43,7 +43,7 @@ convert_to_ymd <- function(date_str) {
 }
 
 # Apply the conversion function to the Sampling_date column and convert to Date format:
-# Emission_rates_w_corrections_2023$Sampling_date <- sapply(Emission_rates_w_corrections_2023$Sampling_date, convert_to_ymd) Apply only if necessary, depending on Sampling_date format
+Emission_rates_w_corrections_2023$Sampling_date <- sapply(Emission_rates_w_corrections_2023$Sampling_date, convert_to_ymd) #Apply only if necessary, depending on Sampling_date format
 Emission_rates_w_corrections_2023$Sampling_date <- as.Date(Emission_rates_w_corrections_2023$Sampling_date, format = "%Y-%m-%d")
 
 # Importing piezometer information:
@@ -101,9 +101,6 @@ Master_GHG_2023 <- Master_GHG_2023[, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
 #  Water level calculations ####
 
-Water_level_2023 <- read.csv("data/Piezo_2023.csv", fileEncoding="latin1", na.strings=c("","NA")) %>% # Import water level (piezometer) data
-                    rename(Water_level_piezo = Water_level_cm)
-
 Water_level_2023$Date <- as.Date(Water_level_2023$Date)
 
 Chrom_water_level <- Field_sheet_chrom_2023 %>% 
@@ -116,7 +113,7 @@ Chrom_water_level$Sampling_date <- as.Date(Chrom_water_level$Sampling_date) # Co
 Water_level_2023 <- merge(Water_level_2023, Chrom_water_level[, c("Sampling_date", "Plot",  "Rep", "Treat", "Water_level_ruler")], by.x = c("Date", "Plot", "Rep", "Treat"),
                           by.y = c("Sampling_date", "Plot", "Rep", "Treat"), all.x = TRUE, all.y = TRUE)  
               
-Water_level_2023 <- merge(Water_level_2023, Gasera_field_2023[, c("Date", "Plot", "Water_level_ruler_Gasera")], by.x = c("Date", "Plot"), by.y = c("Date", "Plot")) %>% 
+Water_level_2023 <- merge(Water_level_2023, Gasera_field_2023[, c("Date", "Plot", "Water_level_ruler_Gasera")], by = c("Date", "Plot"), all = TRUE) %>% 
   select(Date, Plot, Rep, Treat, Water_level_piezo, Water_level_ruler, Water_level_ruler_Gasera) %>% 
   rename(Sampling_date = Date)
 
@@ -187,6 +184,14 @@ Water_level_2023$Water_level_corr[i] <- case_when(
             Water_level_2023$Water_level_ruler[i] == 0 & Water_level_2023$Water_level_ruler_Gasera[i] == 0 & Water_level_2023$Treat[i] %in% "CON" & 
               !is.na(closest_neg_index_CON) ~ Water_level_2023$Water_level_piezo[closest_neg_index_CON], 
   
+  ## Test 14.03.24:
+  
+  (is.na(Water_level_2023$Water_level_ruler[i]) | Water_level_2023$Water_level_ruler[i] == 0) & Water_level_2023$Water_level_ruler_Gasera[i] == 0 & is.na(Water_level_2023$Water_level_piezo[i]) 
+  & Water_level_2023$Treat[i] %in% "CON" & is.na(closest_neg_index_CON) ~ Water_level_2023$Water_level_ruler[i], # d.ii) part I
+  
+  
+  (is.na(Water_level_2023$Water_level_ruler[i]) | Water_level_2023$Water_level_ruler[i] == 0) & Water_level_2023$Water_level_ruler_Gasera[i] == 0 & is.na(Water_level_2023$Water_level_piezo[i])
+  & Water_level_2023$Treat[i] %in% "CON" & !is.na(closest_neg_index_CON) ~ Water_level_2023$Water_level_piezo[closest_neg_index_CON], # d.ii) part II
   
   TRUE ~ NA_real_
 )
@@ -217,13 +222,15 @@ write_xlsx(Water_level_2023, "outputs/Water_level_2023.xlsx")
 
 save(Water_level_2023, file = "outputs/Water_level_2023.RData")
 
-# Plotting water level:
+# Plotting water level ####
 
 Avg_water_level2 <- Water_level_2023 %>% 
                           group_by(Sampling_date, Treat) %>% 
                           summarize(avg_Water_level_corr = mean(Water_level_corr, na.rm = TRUE))
 
 Avg_water_level2$avg_Water_level_corr[is.na(Avg_water_level2$avg_Water_level_corr)] <- NA # Replace NaN for NA values
+
+pdf('outputs/CERESTRES_results/Water_plot_2023.pdf', width = 12)
 
 Water_plot_2023 <- ggplot(Avg_water_level2, aes(x = Sampling_date, color = Treat, linetype = avg_Water_level_corr)) +
                           geom_line(aes(y = avg_Water_level_corr, linetype = "avg_Water_level_corr", color = Treat), show.legend = FALSE) +
@@ -244,6 +251,8 @@ Water_plot_2023 <- ggplot(Avg_water_level2, aes(x = Sampling_date, color = Treat
                           scale_x_date(date_breaks = "14 day", date_labels = "%m.%d")
 
 print(Water_plot_2023) # Water level all treats
+
+dev.off()
 
 # Ploting Emissions ####
 
@@ -267,16 +276,88 @@ write_xlsx(Avg_rates_compare_TR2, "outputs/CERESTRES_results/Gasera_vs_Chromat/A
 
 ### TR - CH4: ####
 
+# I.CHROM and GASERA in separate plots:
+
+# I.a. CHROM: 
+
+Avg_rates_compare_TR2_CHROM <- Avg_rates_compare_TR2 %>% 
+                                filter(!is.na(avg_Chrom_CH4_flux_mgm2h))
+
+Master_GHG_2023_CHROM <- Master_GHG_2023 %>% 
+                          filter(!is.na(Chrom_CH4_flux_corrected))
+
+Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR2_CHROM, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CH4_flux_mgm2h, group = Treat)) +
+                                    geom_line(data = Master_GHG_2023_CHROM, aes(x = Sampling_date, y = Chrom_CH4_flux_corrected, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                    geom_line(aes(y = avg_Chrom_CH4_flux_mgm2h)) + #, linetype = "Average CH4 Flux - Chromatography")) +   , na.rm = TRUE) +
+                                    scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
+                                    theme_bw() +
+                                    labs(y = expression(paste("Chromatography - ", CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                    xlab("Time") +
+                                    ggtitle("CH4 Emission rates Gasera vs. Chromatography") +
+                                    scale_x_date(date_breaks = "14 day", date_labels = "%m.%d") +
+                                    theme(
+                                      axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
+                                      axis.text.y = element_text(color = "black"),
+                                      axis.title.y.right = element_text(color = "black"),
+                                      axis.text.y.right = element_text(color = "black"),
+                                      strip.background = element_blank(),
+                                      strip.placement = "outside",
+                                      legend.text = element_text(size = 12),
+                                      legend.title = element_text(size = 12),
+                                      axis.text.x = element_blank(),
+                                      legend.position="top",
+                                      plot.margin = unit(c(1, 1, 0, 1.3), "lines")) +
+                                    xlab(NULL)
+                                  
+print(Rates_vs_time_CH4_CHROM)
+
+# I.b. GASERA:
+
+Avg_rates_compare_TR2_GASERA <- Avg_rates_compare_TR2 %>% 
+                                filter(!is.na(avg_Gasera_CH4_flux_mgm2h))
+
+Master_GHG_2023_GASERA_TR <- Master_GHG_2023 %>% 
+                          filter(Chamber_type == "TR") %>% 
+                          filter(!is.na(Gasera_CH4_flux_mgm2h))
+
+Rates_vs_time_CH4_GASERA <- ggplot(data = Avg_rates_compare_TR2_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CH4_flux_mgm2h, group = Treat)) +
+                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CH4_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                    geom_line(aes(y = avg_Gasera_CH4_flux_mgm2h)) + #, linetype = "Average CH4 Flux - Gasera")) +
+                                    scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
+                                    theme_bw() +
+                                    labs(y = expression(paste("Gasera - ", CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                    xlab("Time") +
+                                    scale_x_date(date_breaks = "14 day", date_labels = "%m.%d") +
+                                    theme(
+                                      axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
+                                      axis.text.y = element_text(color = "black"),
+                                      axis.title.y.right = element_text(color = "black"),
+                                      axis.text.y.right = element_text(color = "black"),
+                                      strip.background = element_blank(),
+                                      strip.placement = "outside",
+                                      legend.position="none",
+                                      plot.margin = unit(c(0, 1, 0, 1), "lines")) +
+                                    xlab(NULL)
+
+print(Rates_vs_time_CH4_GASERA)
+
+# I.c. Arrange both plots:
+
+Rates_vs_time_CH4_methods <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Rates_vs_time_CH4_GASERA, nrow = 2, ncol = 1))
+ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/Rates_vs_time_CH4_methods.pdf", width = 20, height = 12, plot = Rates_vs_time_CH4_methods)
+
+#  II. Gasera and Chrom in one plot: 
+
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/Rates_vs_time_CH4_compare_TR2.pdf', width = 12)
 
 Rates_vs_time_CH4_compare_TR2 <- ggplot(data = Avg_rates_compare_TR2, aes(color = Treat, x = Sampling_date, y = avg_Gasera_CH4_flux_mgm2h, group = Treat)) +
                                         geom_line(aes(y = avg_Gasera_CH4_flux_mgm2h, linetype = "Average CH4 Flux - Gasera")) +
-                                        geom_line(aes(y = avg_Chrom_CH4_flux_mgm2h, linetype = "Average CH4 Flux - Chromatography"), na.rm = TRUE) +
+                                        geom_line(aes(y = avg_Chrom_CH4_flux_mgm2h, linetype = "Average CH4 Flux - Chromatography")) +  # , na.rm = TRUE) +
                                         scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                         scale_linetype_manual(values = c("solid", "dashed")) +  # Manually set line types
                                         theme_bw() +
                                         labs(y = expression(paste(CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
-                                        # xlab("Time") +
+                                        xlab("Time") +
                                         ggtitle("CH4 Emission rates Gasera vs. Chromatography") +
                                         scale_x_date(date_breaks = "14 day", date_labels = "%m.%d") +
                                         guides(linetype = guide_legend(override.aes = list(color = c("black", "black")))) +
@@ -289,19 +370,20 @@ Rates_vs_time_CH4_compare_TR2 <- ggplot(data = Avg_rates_compare_TR2, aes(color 
                                           strip.placement = "outside",
                                           legend.text = element_text(size = 7),
                                           legend.title = element_text(size = 7),
-                                          axis.text.x = element_blank(),
+                                          # axis.text.x = element_blank(),
                                           legend.position="top",
                                           plot.margin = unit(c(1, 1, 0, 1), "lines")) +
                                         xlab(NULL)
                                         # theme(plot.title = element_text(hjust = 0.5)) +
                                         # theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-
 print(Rates_vs_time_CH4_compare_TR2)
 
 dev.off()
 
 # Arrange plots:
+
+# Gasera and Chrom in one plot, arranged with water plot:
 
 Rates_vs_time_CH4_compare_TR2_water <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_compare_TR2, Water_plot_2023, nrow = 2, ncol = 1))
 ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/Rates_vs_time_CH4_compare_TR2_water.pdf", width = 7, height = 5, plot = Rates_vs_time_CH4_compare_TR2_water) # Arrange CH4 emissions + Water level all treats
@@ -310,7 +392,7 @@ ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/Rates_vs_time_CH4_compare_TR
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/Rates_vs_time_N2O_compare_TR.pdf', width = 12)
 
-Rates_vs_time_N2O_compare_TR <- ggplot(data = Avg_rates_compare_TR, aes(color = Treat, x = Date, y = avg_Gasera_N2O_flux_mgm2h, group = Treat)) +
+Rates_vs_time_N2O_compare_TR <- ggplot(data = Avg_rates_compare_TR2, aes(color = Treat, x = Sampling_date, y = avg_Gasera_N2O_flux_mgm2h, group = Treat)) +
                                         geom_line(aes(y = avg_Gasera_N2O_flux_mgm2h, linetype = "Average N2O Flux - Gasera")) +
                                         geom_line(aes(y = avg_Chrom_N2O_flux_mgm2h, linetype = "Average N2O Flux - Chromatography"), na.rm = TRUE) +
                                         scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
@@ -349,7 +431,7 @@ ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/Rates_vs_time_N2O_compare_TR
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/Rates_vs_time_CO2_compare_TR.pdf', width = 12)
 
-Rates_vs_time_CO2_compare_TR <- ggplot(data = Avg_rates_compare_TR, aes(color = Treat, x = Date, y = avg_Gasera_CO2_flux_mgm2h, group = Treat)) +
+Rates_vs_time_CO2_compare_TR <- ggplot(data = Avg_rates_compare_TR2, aes(color = Treat, x = Sampling_date, y = avg_Gasera_CO2_flux_mgm2h, group = Treat)) +
                                         geom_line(aes(y = avg_Gasera_CO2_flux_mgm2h, linetype = "Average CO2 Flux - Gasera")) +
                                         geom_line(aes(y = avg_Chrom_CO2_flux_mgm2h, linetype = "Average CO2 Flux - Chromatography"), na.rm = TRUE) +
                                         scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +

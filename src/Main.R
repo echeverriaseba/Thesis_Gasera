@@ -166,9 +166,9 @@ Treat_Plot <- data.frame(Plot, Rep, Treat)
 Gasera_emission_rates_2023 <- merge(Gasera_emission_rates_2023, Treat_Plot, by.x = "Plot", by.y = "Plot")
 Gasera_emission_rates_2023 <- Gasera_emission_rates_2023[,c("Date", "Code_Nr", "Code", "Rep", "Plot", "Treat", "Chamber_type", "CH4_flux_mgm2h", "R2_CH4", "p_CH4", "N2O_flux_mgm2h", "R2_N2O", "p_N2O", "CO2_flux_mgm2h", "R2_CO2", "p_CO2")] # Reorder columns
 
-#################################### 3. Loops to fill up new data frame Gasera_emission_rates_2023 #################
+# 3. Loops to fill up new data frame Gasera_emission_rates_2023 ####
 
-#### 3.1 Loops for CH4 ####
+## 3.1 Loops for CH4 ####
 
 pdf('outputs/CERESTRES_results/CH4_Plots_Original.pdf')
 
