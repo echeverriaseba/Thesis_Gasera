@@ -344,7 +344,7 @@ print(Rates_vs_time_CH4_GASERA)
 # I.c. Arrange both plots:
 
 Rates_vs_time_CH4_methods <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Rates_vs_time_CH4_GASERA, nrow = 2, ncol = 1))
-ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/Rates_vs_time_CH4_methods.pdf", width = 20, height = 12, plot = Rates_vs_time_CH4_methods)
+ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/First_plot_tests/Rates_vs_time_CH4_methods1.pdf", width = 20, height = 12, plot = Rates_vs_time_CH4_methods)
 
 #  II. Gasera and Chrom in one plot: 
 
