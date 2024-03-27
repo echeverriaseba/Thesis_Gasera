@@ -9,7 +9,7 @@ GHG emission rate calculation out of Gasera samplings
 ## /src: R scripts
 Here the main scripts used for data preparation, plotting and statistical analyses are described. Other scripts can be found in this folder containing coding tests. 
 
-### Main: GHG emission calculation
+### Main: GHG emission calculation from Gasera samplings
 - Field sampling data in "data/CERESTRES_Gasera_results". All output ".meas" files from Gasera field samplings should be stored here.
 - Gasera files nomenclature:
   - Digits/Letters 1 - 3: Experiment (e.g. CER for "CERESTRES")
@@ -21,8 +21,10 @@ Here the main scripts used for data preparation, plotting and statistical analys
 - for in loops for CH4, N2O and CO2 emission calculations.
 - Accumulated emissions during all the growing season.
 
-### Gasera_vs_Chrom: Water level calculations and emission comparisson among methods
+### Data_prep: Creating Master_GHG_2023 dataframe with emissions from Chromatography and Gasera, physiochemichal data and Water level calculations
 - Inputs:
   a. Emission_rates_w_corrections_2023.RData: Chromatography GHG rates. Previously calculated in Rproject Thesis_Chromatography.
   b. Gasera_emission_rates_2023.RData: Gasera GHG rates. Previously calculated in Main script.
-- Comparisson plots.
+  
+### Data_visual: Plotting data from Data_prep
+
