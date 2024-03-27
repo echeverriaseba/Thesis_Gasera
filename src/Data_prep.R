@@ -119,7 +119,7 @@ Master_GHG_2023 <- Master_GHG_2023[, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
 
 Master_GHG_2023 <- Master_GHG_2023[!(Master_GHG_2023 $Plot %in% c("P10","P11", "P12", "P13", "P14", "P15")), ] #Removes Rep 4 and Rep 5 (only sampled during first dates)
 
-#  2. Water level correction ####
+#  2. Water level calculations ####
 
 # Defines water level among measurement method (piezometer or ruler during chrom/gasera samplings) according to specific cases, see each assignment condition below.
 # Water level correction for season 2023 differs from 2022 due to the new "Water_level_ruler_Gasera" data collected during Gasera samplings (only Chromatography for 2022 season)
@@ -195,3 +195,8 @@ Master_GHG_2023 <- Master_GHG_2023 %>%
                                            92, 97, 102, # 2023-06-19
                                            499, 506, 510 # 023-11-08
                             ), 1, Doub_piez)) # Adds a "1" to identify those dates with double piezometer measurement
+
+## Outputs:
+
+write_xlsx(Master_GHG_2023, "outputs/CERESTRES_results/Master_GHG_2023.xlsx") # Excel file with Master_GHG_2023.
+save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") # Saves the Master_GHG_2023 dataframe to open with other R projects/scripts
