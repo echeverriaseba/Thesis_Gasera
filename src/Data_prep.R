@@ -7,7 +7,7 @@ library(writexl)
 library(gridExtra)
 library(cowplot)
 
-# 1. Preparing data ####
+# 1. Creating Master dataframe: Master_GHG_2023 ####
 
 ## Importing Chromatography results from Rproject: Chromatography_results:
 
@@ -195,6 +195,13 @@ Master_GHG_2023 <- Master_GHG_2023 %>%
                                            92, 97, 102, # 2023-06-19
                                            499, 506, 510 # 023-11-08
                             ), 1, Doub_piez)) # Adds a "1" to identify those dates with double piezometer measurement
+
+
+# Column separating Growing Season (GS) and Post-Harvest (PH) - 2023-10-03 mesoosm was implemented, harvest was 2023-10-04 and 2023-10-05.
+
+Master_GHG_2023 <- Master_GHG_2023 %>%
+                    mutate(Season = if_else(Sampling_date < as.Date("2023-10-03"), "GS",
+                                            if_else(Sampling_date >= "2023-10-03", "PH", NA)))
 
 ## Outputs:
 
