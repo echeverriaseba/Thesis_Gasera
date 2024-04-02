@@ -642,3 +642,47 @@ Versus_DK_CO2_cor <- ggplot(data = Master_CON_GS_CO2_DK, aes(x = avg_Chrom_CO2_f
 print(Versus_DK_CO2_cor)
 
 dev.off()
+
+# 4. Cumulative emissions ####
+
+## 4.1. Cumulative CH4 ####
+
+# Total (GS & PH):
+
+Acc_CH4_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CH4_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right")
+
+print(Acc_CH4_tot_plot)
+
+# GS:
+
+Acc_CH4_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CH4_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right")
+
+print(Acc_CH4_GS_plot)
+
+# PH:
+
+Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CH4_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right")
+
+print(Acc_CH4_PH_plot)
+

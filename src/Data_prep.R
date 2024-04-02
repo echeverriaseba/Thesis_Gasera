@@ -207,3 +207,81 @@ Master_GHG_2023 <- Master_GHG_2023 %>%
 
 write_xlsx(Master_GHG_2023, "outputs/CERESTRES_results/Master_GHG_2023.xlsx") # Excel file with Master_GHG_2023.
 save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") # Saves the Master_GHG_2023 dataframe to open with other R projects/scripts
+
+#  3. Cumulative emissions ####
+
+## 3.1. Preparing dataframes ####
+
+# Data frame for GS And Total cumulative emission calculations:
+
+Acc_CHROM <- Master_GHG_2023 %>% # New df with all Chromatography results, it's filtered for NA using CH4 column but works as well for N2O and CO2.
+              filter(!is.na(Chrom_CH4_flux_corrected)) %>% 
+              select("Sampling_date", "Treat", "Plot", "Rep", "Season", "Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected", "Chrom_CO2_flux_corrected") %>% 
+              arrange(Plot, Sampling_date) %>% 
+              group_by(Plot) %>% 
+              mutate(Days_passed = as.integer(Sampling_date - lag(Sampling_date))) %>% 
+              mutate(Hours_passed = Days_passed * 24) %>% 
+              mutate(CH4_mgm2 = Chrom_CH4_flux_corrected * Hours_passed, # *10.000 from m-2 to ha-1 ; /1.000.000 from mg to kg
+                     N2O_mgm2 = Chrom_N2O_flux_corrected * Hours_passed,
+                     CO2_mgm2 = Chrom_CO2_flux_corrected * Hours_passed,
+                     CH4_kgha = CH4_mgm2 / 100,
+                     N2O_kgha = N2O_mgm2 / 100,
+                     CO2_kgha = CO2_mgm2 / 100) 
+
+Acc_CHROM$CH4_kgha <- ifelse(is.na(Acc_CHROM$CH4_kgha), 0, Acc_CHROM$CH4_kgha)
+Acc_CHROM$N2O_kgha <- ifelse(is.na(Acc_CHROM$N2O_kgha), 0, Acc_CHROM$N2O_kgha)  
+Acc_CHROM$CO2_kgha <- ifelse(is.na(Acc_CHROM$CO2_kgha), 0, Acc_CHROM$CO2_kgha) 
+
+# Data frame for PH cumulative emission calculations:
+
+Acc_CHROM_PH <- Master_GHG_2023 %>% # New df with all Chromatography results, it's filtered for NA using CH4 column but works as well for N2O and CO2.
+              filter(!is.na(Chrom_CH4_flux_corrected), Season == "PH") %>% 
+              select("Sampling_date", "Treat", "Plot", "Rep", "Season", "Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected", "Chrom_CO2_flux_corrected") %>% 
+              arrange(Plot, Sampling_date) %>% 
+              group_by(Plot) %>% 
+              mutate(Days_passed = as.integer(Sampling_date - lag(Sampling_date))) %>% 
+              mutate(Hours_passed = Days_passed * 24) %>% 
+              mutate(CH4_mgm2 = Chrom_CH4_flux_corrected * Hours_passed, # *10.000 from m-2 to ha-1 ; /1.000.000 from mg to kg
+                     N2O_mgm2 = Chrom_N2O_flux_corrected * Hours_passed,
+                     CO2_mgm2 = Chrom_CO2_flux_corrected * Hours_passed,
+                     CH4_kgha = CH4_mgm2 / 100,
+                     N2O_kgha = N2O_mgm2 / 100,
+                     CO2_kgha = CO2_mgm2 / 100) 
+
+Acc_CHROM_PH$CH4_kgha <- ifelse(is.na(Acc_CHROM_PH$CH4_kgha), 0, Acc_CHROM_PH$CH4_kgha)
+Acc_CHROM_PH$N2O_kgha <- ifelse(is.na(Acc_CHROM_PH$N2O_kgha), 0, Acc_CHROM_PH$N2O_kgha)  
+Acc_CHROM_PH$CO2_kgha <- ifelse(is.na(Acc_CHROM_PH$CO2_kgha), 0, Acc_CHROM_PH$CO2_kgha)
+
+# Sum of all plot emission according to treatments:
+
+# i) Summarized df for total cumulative emissions plot:
+
+Acc_CHROM_tot_sum <- Acc_CHROM %>%
+                    group_by(Treat, Plot) %>%
+                    summarise(CH4_kgha_tot = sum(CH4_kgha),
+                              N2O_kgha_tot = sum(N2O_kgha),
+                              CO2_kgha_tot = sum(CO2_kgha)) 
+
+Acc_CHROM_tot_sum$Treat <- factor(Acc_CHROM_tot_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
+
+# ii) Summarized df for GS cumulative emissions plot:
+
+Acc_CHROM_GS_sum <- Acc_CHROM %>%
+                    filter(Season == "GS") %>% 
+                    group_by(Treat, Plot) %>%
+                    summarise(CH4_kgha_tot = sum(CH4_kgha),
+                              N2O_kgha_tot = sum(N2O_kgha),
+                              CO2_kgha_tot = sum(CO2_kgha)) 
+
+Acc_CHROM_GS_sum$Treat <- factor(Acc_CHROM_GS_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
+
+# iii) Summarized df for PH cumulative emissions plot:
+
+Acc_CHROM_PH_sum <- Acc_CHROM_PH %>%
+                    group_by(Treat, Plot) %>%
+                    summarise(CH4_kgha_tot = sum(CH4_kgha),
+                              N2O_kgha_tot = sum(N2O_kgha),
+                              CO2_kgha_tot = sum(CO2_kgha)) 
+
+Acc_CHROM_PH_sum$Treat <- factor(Acc_CHROM_PH_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
+
