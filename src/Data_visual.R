@@ -193,6 +193,10 @@ ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_methods.pdf", width = 20
 Rates_vs_time_CH4_methods_gascor <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Rates_vs_time_CH4_GASERA_cor, Water_plot_2023b, nrow = 3, ncol = 1))
 ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_methods_gascor.pdf", width = 20, height = 12, plot = Rates_vs_time_CH4_methods_gascor)
 
+# Only Chromatography:
+
+Rates_vs_time_CH4_CHROM_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Water_plot_2023b, nrow = 2, ncol = 1))
+
 ## 2.3. N2O ####
 
 #### N2O - Chromatography ####
@@ -653,12 +657,17 @@ Acc_CH4_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CH4_kgha_tot, 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
+                            ggtitle("Complete Season") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
-                            scale_y_continuous(position = "right")
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              plot.title = element_text(hjust = 0.5))
 
 print(Acc_CH4_tot_plot)
+
+Acc_CH4_tot_plot_limits <- layer_scales(Acc_CH4_tot_plot)$y$get_limits() # extracting limits from plot Acc_CH4_tot_plot to use in Acc_CH4_GS_plot, so they coincide when arranging
 
 # GS:
 
@@ -666,10 +675,15 @@ Acc_CH4_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CH4_kgha_tot, fi
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
+                            ggtitle("Growing Season") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
-                            scale_y_continuous(position = "right")
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              plot.title = element_text(hjust = 0.5))
 
 print(Acc_CH4_GS_plot)
 
@@ -677,12 +691,26 @@ print(Acc_CH4_GS_plot)
 
 Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CH4_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
-                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
+                            ggtitle("Post-harvest") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
-                            scale_y_continuous(position = "right")
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              plot.title = element_text(hjust = 0.5))
 
 print(Acc_CH4_PH_plot)
+
+# Arrange plots: 
+
+# Cumulative emission plots:
+
+CH4_acc_arr <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot, Acc_CH4_PH_plot, Acc_CH4_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) ))
+CH4_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM_arr, CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4)))
+
+ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_acc_rate_arr) 
 
