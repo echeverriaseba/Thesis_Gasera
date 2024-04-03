@@ -208,7 +208,7 @@ Master_GHG_2023 <- Master_GHG_2023 %>%
 write_xlsx(Master_GHG_2023, "outputs/CERESTRES_results/Master_GHG_2023.xlsx") # Excel file with Master_GHG_2023.
 save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") # Saves the Master_GHG_2023 dataframe to open with other R projects/scripts
 
-#  3. Cumulative emissions ####
+#  3. Cumulative emissions & GWP ####
 
 ## 3.1. Preparing dataframes ####
 

@@ -119,7 +119,7 @@ Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                     geom_hline(yintercept = 0, color = "grey") +
                                     geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
                                     annotate('text', x = as.Date("2023-09-30"), y = 60, label = "Growing Season", size = 4, color = "grey", angle = '90') +
-                                    annotate('text', x = as.Date("2023-10-06"), y = 60, label = "Post-harvest", size = 4, color = "grey", angle = '270') +
+                                    annotate('text', x = as.Date("2023-10-06"), y = 60, label = "Post-Harvest", size = 4, color = "grey", angle = '270') +
                                     theme(
                                       axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
                                       axis.text.y = element_text(color = "black"),
@@ -697,7 +697,7 @@ Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CH4_kgha_tot, fi
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
-                            ggtitle("Post-harvest") +
+                            ggtitle("Post-Harvest") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
