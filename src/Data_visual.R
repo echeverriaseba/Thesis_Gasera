@@ -29,6 +29,7 @@ Water_plot_2023b <- ggplot(Avg_water_level3, aes(x = Sampling_date, color = Trea
                             labs(y = "Water level (cm)") +
                             labs(x = "Sampling date") +
                             geom_hline(yintercept=0, color = "grey") +
+                            geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
                             scale_linetype_manual(name = "avg_Water_level_corr",
                                                   values = c("avg_Water_level_corr" = "dashed"), labels = "Water level (cm)") +
                             guides(linetype = guide_legend(override.aes = list(color = "black"))) +
@@ -110,12 +111,15 @@ Master_GHG_2023_GASERA_DK <- Master_GHG_2023 %>% # New df with all Gasera result
 Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CH4_flux_mgm2h, group = Treat)) +
                                     geom_line(data = Master_GHG_2023_CHROM, aes(x = Sampling_date, y = Chrom_CH4_flux_corrected, group = Plot), alpha = 0.5, linetype = "dotted") +
                                     geom_line(aes(y = avg_Chrom_CH4_flux_mgm2h)) + # linetype = "Average CH4 Flux - Chromatography")) +   , na.rm = TRUE) +
-                                    scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
+                                    scale_colour_manual(name = "Irriation Strategies:", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                     theme_bw() +
-                                    labs(y = expression(paste("Chromatography - ", CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                    labs(y = expression(paste("C -", CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                     xlab("Time") +
-                                    ggtitle(expression(paste(CH[4], " Emission rates Gasera vs. Chromatography"))) +
                                     scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
+                                    geom_hline(yintercept = 0, color = "grey") +
+                                    geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                    annotate('text', x = as.Date("2023-09-30"), y = 60, label = "Growing Season", size = 4, color = "grey", angle = '90') +
+                                    annotate('text', x = as.Date("2023-10-06"), y = 60, label = "Post-harvest", size = 4, color = "grey", angle = '270') +
                                     theme(
                                       axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
                                       axis.text.y = element_text(color = "black"),
@@ -126,8 +130,9 @@ Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                       legend.text = element_text(size = 12),
                                       legend.title = element_text(size = 12),
                                       axis.text.x = element_blank(),
-                                      legend.position="top"
-                                      , plot.margin = unit(c(1, 1, 0, 1.3), "lines")) +
+                                      legend.position="top",
+                                      plot.margin = unit(c(1, 1, 0, 1.3), "lines"),
+                                      plot.title = element_blank()) +
                                     xlab(NULL) 
 
 print(Rates_vs_time_CH4_CHROM)
@@ -157,7 +162,6 @@ Rates_vs_time_CH4_GASERA <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color
 print(Rates_vs_time_CH4_GASERA)
 
 #### CH4 - Gasera (corrected) ####
-
 
 Rates_vs_time_CH4_GASERA_cor <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CH4_flux_mgm2h, group = Treat)) +
                                     geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CH4_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
@@ -660,7 +664,7 @@ Acc_CH4_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CH4_kgha_tot, 
                             ggtitle("Complete Season") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
-                            theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
                               plot.title = element_text(hjust = 0.5))
@@ -678,7 +682,7 @@ Acc_CH4_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CH4_kgha_tot, fi
                             ggtitle("Growing Season") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
-                            theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
                               axis.text.y = element_blank(),
@@ -696,7 +700,7 @@ Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CH4_kgha_tot, fi
                             ggtitle("Post-harvest") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
-                            theme(plot.margin = margin(l = 0, r = 5, t = 42, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
                               axis.text.y = element_blank(),
