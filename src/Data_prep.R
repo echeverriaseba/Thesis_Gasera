@@ -264,6 +264,8 @@ Acc_CHROM_tot_sum <- Acc_CHROM %>%
 
 Acc_CHROM_tot_sum$Treat <- factor(Acc_CHROM_tot_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
+Acc_CHROM_tot_sum$GWP <- (Acc_CHROM_tot_sum$CH4_kgha_tot * 25) + (Acc_CHROM_tot_sum$N2O_kgha_tot * 298) 
+
 # ii) Summarized df for GS cumulative emissions plot:
 
 Acc_CHROM_GS_sum <- Acc_CHROM %>%

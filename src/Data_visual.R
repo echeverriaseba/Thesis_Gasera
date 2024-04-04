@@ -718,3 +718,41 @@ CH4_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM_arr, CH4_ac
 
 ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_acc_rate_arr) 
 
+# 5. GWP ####
+
+## 5.1. GWP Boxplots ####
+
+GWP_boxplot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = GWP, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(y = expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) +
+                            theme_bw()+
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            theme(
+                              axis.title.x = element_blank(),
+                              plot.title = element_text(hjust = 0.5))
+
+print(GWP_boxplot)
+
+ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/GWP_boxplot.pdf", plot = GWP_boxplot ,width = 10, height = 10)
+
+## 5.2. GWP dots ####
+
+GWP_dots <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
+                    geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 10)+
+                    scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                    scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                    theme_bw() +
+                    ylab(expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) +
+                    theme(
+                          axis.title.y = element_text(margin = margin(r = 12)), axis.title.x = element_blank(), legend.position = "none", 
+                          axis.text.y = element_text(margin = margin(r = 0)), panel.border = element_rect(size = 1)) +
+                    geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP), shape = 19, colour = "black", size = 12) +
+                    geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP), shape = 19, size = 10) +
+                    geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP, ymin = mean_GWP - se_GWP, ymax = mean_GWP + se_GWP), width = 0.3, size = 1) 
+
+print(GWP_dots)
+
+ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/GWP_dots.pdf", plot = GWP_dots ,width = 10, height = 10)
+
