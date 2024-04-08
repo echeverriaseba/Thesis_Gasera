@@ -118,8 +118,8 @@ Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                     scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                     geom_hline(yintercept = 0, color = "grey") +
                                     geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
-                                    annotate('text', x = as.Date("2023-09-30"), y = 60, label = "Growing Season", size = 4, color = "grey", angle = '90') +
-                                    annotate('text', x = as.Date("2023-10-06"), y = 60, label = "Post-Harvest", size = 4, color = "grey", angle = '270') +
+                                    annotate('text', x = as.Date("2023-09-30"), y = 45, label = "Growing Season", size = 4, color = "grey", angle = '90') +
+                                    annotate('text', x = as.Date("2023-10-06"), y = 45, label = "Post-Harvest", size = 4, color = "grey", angle = '270') +
                                     theme(
                                       axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
                                       axis.text.y = element_text(color = "black"),
@@ -199,7 +199,11 @@ ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_methods_gascor.pdf", wid
 
 # Only Chromatography:
 
-Rates_vs_time_CH4_CHROM_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Water_plot_2023b, nrow = 2, ncol = 1))
+Rates_vs_time_CH4_CHROM_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Water_plot_2023b, nrow = 2, ncol = 1)) # CCH4 flux and water level arrange
+Rates_vs_time_CH4_N2O_CHROM_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Rates_vs_time_N2O_CHROM2, Water_plot_2023b, nrow = 3, ncol = 1)) # CCH4 flux, NN2O flux and water level arrange
+
+ggsave("outputs/CERESTRES_results/Chromat_results/CH4_flux_water.pdf", width = 20, height = 10, plot = Rates_vs_time_CH4_CHROM_arr)
+ggsave("outputs/CERESTRES_results/Chromat_results/CH4_N2O_flux_water.pdf", width = 20, height = 10, plot = Rates_vs_time_CH4_N2O_CHROM_arr)
 
 ## 2.3. N2O ####
 
@@ -229,6 +233,37 @@ Rates_vs_time_N2O_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                   xlab(NULL) 
 
 print(Rates_vs_time_N2O_CHROM)
+
+# 2nd version, to arrange with CCH4 rates and water level:
+
+Rates_vs_time_N2O_CHROM2 <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color = Treat, x = Sampling_date, y = avg_Chrom_N2O_flux_mgm2h, group = Treat)) +
+                                  geom_line(data = Master_GHG_2023_CHROM, aes(x = Sampling_date, y = Chrom_N2O_flux_corrected, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                  geom_line(aes(y = avg_Chrom_N2O_flux_mgm2h)) + # linetype = "Average N2O Flux - Chromatography")) +   , na.rm = TRUE) +
+                                  scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
+                                  theme_bw() +
+                                  labs(y = expression(paste("N-", N[2], "O", " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                  xlab("Time") +
+                                  # ggtitle(element_blank()) +
+                                  geom_hline(yintercept=0, color = "grey") +
+                                  geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                  scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
+                                  theme(
+                                    axis.title.y = element_text(color = "black"), 
+                                    axis.text.y = element_text(color = "black"),
+                                    axis.title.y.right = element_text(color = "black"),
+                                    axis.text.y.right = element_text(color = "black"),
+                                    strip.background = element_blank(),
+                                    strip.placement = "outside",
+                                    legend.text = element_blank(),
+                                    legend.position = "none",
+                                    legend.title = element_blank(),
+                                    axis.text.x = element_blank(),  
+                                    plot.title = element_blank(), 
+                                    plot.margin = unit(c(0, 1, 0, 0.8), "lines"),
+                                    axis.title.x = element_blank()) +
+                                  xlab(NULL) 
+
+print(Rates_vs_time_N2O_CHROM2)
 
 #### N2O - Gasera (not corrected) ####
 
@@ -653,9 +688,11 @@ dev.off()
 
 # 4. Cumulative emissions ####
 
-## 4.1. Cumulative CH4 ####
+## 4.1. Cumulative CCH4 ####
 
 # Total (GS & PH):
+
+# Complete version: with all titles, to be plotted alone (arrange only CCH4 acc GS, PH, Tot - "CH4_acc_arr"):
 
 Acc_CH4_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
@@ -673,7 +710,27 @@ print(Acc_CH4_tot_plot)
 
 Acc_CH4_tot_plot_limits <- layer_scales(Acc_CH4_tot_plot)$y$get_limits() # extracting limits from plot Acc_CH4_tot_plot to use in Acc_CH4_GS_plot, so they coincide when arranging
 
+# Arrange with NN2O acc version: without x text and title:
+
+Acc_CH4_tot_plot2 <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            ggtitle("Complete Season") +
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              plot.title = element_text(hjust = 0.5),
+                              axis.text.x = element_blank(),
+                              axis.title.x = element_blank())
+
+print(Acc_CH4_tot_plot2)
+
 # GS:
+
+# Complete version: with all titles, to be plotted alone (arrange only CCH4 acc GS, PH, Tot - "CH4_acc_arr"):
 
 Acc_CH4_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
@@ -691,7 +748,29 @@ Acc_CH4_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CCH4_kgha_tot, f
 
 print(Acc_CH4_GS_plot)
 
+# Arrange with NN2O acc version: without x text and title:
+
+Acc_CH4_GS_plot2 <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            ggtitle("Growing Season") +
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              plot.title = element_text(hjust = 0.5),
+                              axis.text.x = element_blank(),
+                              axis.title.x = element_blank())
+
+print(Acc_CH4_GS_plot2)
+
 # PH:
+
+# Complete version: with all titles, to be plotted alone (arrange only CCH4 acc GS, PH, Tot - "CH4_acc_arr"):
 
 Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
@@ -709,14 +788,97 @@ Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CCH4_kgha_tot, f
 
 print(Acc_CH4_PH_plot)
 
+# Arrange with NN2O acc version: without x text and title:
+
+Acc_CH4_PH_plot2 <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            ggtitle("Post-Harvest") +
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              plot.title = element_text(hjust = 0.5),
+                              axis.text.x = element_blank(),
+                              axis.title.x = element_blank())
+
+print(Acc_CH4_PH_plot2)
+
+## 4.2. Cumulative NN2O ####
+
+# Total (GS & PH):
+
+Acc_N2O_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = NN2O_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "", y = expression(paste("Cumulative ",N-N[2], "O emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            ggtitle("Complete Season") +
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 10, t = 0, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(-2, 5), breaks = seq(-2, 5, by = 1)) +
+                            theme(
+                              plot.title = element_blank())
+
+print(Acc_N2O_tot_plot)
+
+Acc_N2O_tot_plot_limits <- layer_scales(Acc_N2O_tot_plot)$y$get_limits() # extracting limits from plot Acc_N2O_tot_plot to use in Acc_N2O_tot_plot, so they coincide when arranging
+
+# GS:
+
+Acc_N2O_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = NN2O_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "", y = expression(paste("Cumulative ",N-N[2], "O emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            ggtitle("Growing Season") +
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(-2, 5), breaks = seq(-2, 5, by = 1)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              plot.title = element_blank())
+
+print(Acc_N2O_GS_plot)
+
+# PH:
+
+Acc_N2O_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = NN2O_kgha_tot, fill = Treat, color = Treat)) + 
+                            geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
+                            labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",N-N[2], "O emissions (kg ", ha^-1, ")"))) +
+                            theme_bw()+
+                            ggtitle("Post-Harvest") +
+                            scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
+                            scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(-2, 5), breaks = seq(-2, 5, by = 1)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              plot.title = element_blank())
+
+print(Acc_N2O_PH_plot)
+
 # Arrange plots: 
 
 # Cumulative emission plots:
 
-CH4_acc_arr <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot, Acc_CH4_PH_plot, Acc_CH4_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) ))
-CH4_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM_arr, CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4)))
+CH4_acc_arr <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot, Acc_CH4_PH_plot, Acc_CH4_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc with all titles
+CH4_acc_arr2 <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot2, Acc_CH4_PH_plot2, Acc_CH4_tot_plot2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc adapted to arrange with NN2O acc
+CH4_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM_arr, CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4))) # CCH4 acc arrange with all titles
 
-ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_acc_rate_arr) 
+N2O_acc_arr <- grid.arrange(arrangeGrob(Acc_N2O_GS_plot, Acc_N2O_PH_plot, Acc_N2O_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # NN2O acc adapted to arrange with CCH4 acc
+N2O_CH4_acc_arr <- grid.arrange(arrangeGrob(CH4_acc_arr2, N2O_acc_arr, nrow = 2, ncol = 1)) # CCH4 and NN2O acc arrange
+
+CH4_N2O_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_N2O_CHROM_arr, N2O_CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4))) # CCH4 and NN2O flUx and acc arrange
+
+ggsave("outputs/CERESTRES_results/Chromat_results/CH4_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_acc_rate_arr)
+ggsave("outputs/CERESTRES_results/Chromat_results/CH4_N2O_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_N2O_acc_rate_arr)
 
 # 5. GWP ####
 
@@ -735,7 +897,7 @@ GWP_boxplot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = GWP, fill = Treat, 
 
 print(GWP_boxplot)
 
-ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/GWP_boxplot.pdf", plot = GWP_boxplot ,width = 10, height = 10)
+ggsave("outputs/CERESTRES_results/Chromat_results/GWP_boxplot.pdf", plot = GWP_boxplot ,width = 10, height = 10)
 
 ## 5.2. GWP dots ####
 
@@ -754,5 +916,5 @@ GWP_dots <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWP, group = Treat, colour = Tr
 
 print(GWP_dots)
 
-ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/GWP_dots.pdf", plot = GWP_dots ,width = 10, height = 10)
+ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots.pdf", plot = GWP_dots ,width = 10, height = 10)
 
