@@ -657,7 +657,7 @@ dev.off()
 
 # Total (GS & PH):
 
-Acc_CH4_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CH4_kgha_tot, fill = Treat, color = Treat)) + 
+Acc_CH4_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
@@ -675,7 +675,7 @@ Acc_CH4_tot_plot_limits <- layer_scales(Acc_CH4_tot_plot)$y$get_limits() # extra
 
 # GS:
 
-Acc_CH4_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CH4_kgha_tot, fill = Treat, color = Treat)) + 
+Acc_CH4_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
@@ -693,7 +693,7 @@ print(Acc_CH4_GS_plot)
 
 # PH:
 
-Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CH4_kgha_tot, fill = Treat, color = Treat)) + 
+Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CCH4_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+

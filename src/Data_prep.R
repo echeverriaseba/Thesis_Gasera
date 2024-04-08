@@ -212,61 +212,93 @@ save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") 
 
 ## 3.1. Preparing dataframes ####
 
+# All previous rates and concentrations in CH4-C, N2O-N and CO2-C. For GWP, units are conventionally: CO2-eq, so rates and concentrations must be transformed (for CH4-C and N2O-N) 
+# before calculating GWP. From now onward, rates, cumulative emissions and GWP distinguish in between CCH4 and CH4, N2O and NN2O, and CO2 and CCO2.
+
 # Data frame for GS And Total cumulative emission calculations:
 
 Acc_CHROM <- Master_GHG_2023 %>% # New df with all Chromatography results, it's filtered for NA using CH4 column but works as well for N2O and CO2.
               filter(!is.na(Chrom_CH4_flux_corrected)) %>% 
               select("Sampling_date", "Treat", "Plot", "Rep", "Season", "Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected", "Chrom_CO2_flux_corrected") %>% 
               arrange(Plot, Sampling_date) %>% 
+              rename(Chrom_CCH4_flux_corrected = Chrom_CH4_flux_corrected, Chrom_NN2O_flux_corrected = Chrom_N2O_flux_corrected, Chrom_CCO2_flux_corrected = Chrom_CO2_flux_corrected) %>% 
               group_by(Plot) %>% 
               mutate(Days_passed = as.integer(Sampling_date - lag(Sampling_date))) %>% 
               mutate(Hours_passed = Days_passed * 24) %>% 
-              mutate(CH4_mgm2 = Chrom_CH4_flux_corrected * Hours_passed, # *10.000 from m-2 to ha-1 ; /1.000.000 from mg to kg
-                     N2O_mgm2 = Chrom_N2O_flux_corrected * Hours_passed,
-                     CO2_mgm2 = Chrom_CO2_flux_corrected * Hours_passed,
+              mutate(CCH4_mgm2 = Chrom_CCH4_flux_corrected * Hours_passed, # *10.000 from m-2 to ha-1 ; /1.000.000 from mg to kg
+                     NN2O_mgm2 = Chrom_NN2O_flux_corrected * Hours_passed,
+                     CCO2_mgm2 = Chrom_CCO2_flux_corrected * Hours_passed,
+                     CCH4_kgha = CCH4_mgm2 / 100,
+                     NN2O_kgha = NN2O_mgm2 / 100,
+                     CCO2_kgha = CCO2_mgm2 / 100) %>% 
+              mutate(Chrom_CH4_flux_transformed = Chrom_CCH4_flux_corrected / ((12/16)^2),
+                     Chrom_N2O_flux_transformed = Chrom_NN2O_flux_corrected / ((28/44) * (14/44)),
+                     Chrom_CO2_flux_transformed = Chrom_CCO2_flux_corrected / ((12/44)^2),
+                     CH4_mgm2 = Chrom_CH4_flux_transformed * Hours_passed, # *10.000 from m-2 to ha-1 ; /1.000.000 from mg to kg
+                     N2O_mgm2 = Chrom_N2O_flux_transformed * Hours_passed,
+                     CO2_mgm2 = Chrom_CO2_flux_transformed * Hours_passed,
                      CH4_kgha = CH4_mgm2 / 100,
                      N2O_kgha = N2O_mgm2 / 100,
-                     CO2_kgha = CO2_mgm2 / 100) 
+                     CO2_kgha = CO2_mgm2 / 100)
 
+Acc_CHROM$CCH4_kgha <- ifelse(is.na(Acc_CHROM$CCH4_kgha), 0, Acc_CHROM$CCH4_kgha)
+Acc_CHROM$NN2O_kgha <- ifelse(is.na(Acc_CHROM$NN2O_kgha), 0, Acc_CHROM$NN2O_kgha)  
+Acc_CHROM$CCO2_kgha <- ifelse(is.na(Acc_CHROM$CCO2_kgha), 0, Acc_CHROM$CCO2_kgha) 
 Acc_CHROM$CH4_kgha <- ifelse(is.na(Acc_CHROM$CH4_kgha), 0, Acc_CHROM$CH4_kgha)
 Acc_CHROM$N2O_kgha <- ifelse(is.na(Acc_CHROM$N2O_kgha), 0, Acc_CHROM$N2O_kgha)  
-Acc_CHROM$CO2_kgha <- ifelse(is.na(Acc_CHROM$CO2_kgha), 0, Acc_CHROM$CO2_kgha) 
+Acc_CHROM$CO2_kgha <- ifelse(is.na(Acc_CHROM$CO2_kgha), 0, Acc_CHROM$CO2_kgha)
 
 # Data frame for PH cumulative emission calculations:
 
 Acc_CHROM_PH <- Master_GHG_2023 %>% # New df with all Chromatography results, it's filtered for NA using CH4 column but works as well for N2O and CO2.
-              filter(!is.na(Chrom_CH4_flux_corrected), Season == "PH") %>% 
-              select("Sampling_date", "Treat", "Plot", "Rep", "Season", "Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected", "Chrom_CO2_flux_corrected") %>% 
-              arrange(Plot, Sampling_date) %>% 
-              group_by(Plot) %>% 
-              mutate(Days_passed = as.integer(Sampling_date - lag(Sampling_date))) %>% 
-              mutate(Hours_passed = Days_passed * 24) %>% 
-              mutate(CH4_mgm2 = Chrom_CH4_flux_corrected * Hours_passed, # *10.000 from m-2 to ha-1 ; /1.000.000 from mg to kg
-                     N2O_mgm2 = Chrom_N2O_flux_corrected * Hours_passed,
-                     CO2_mgm2 = Chrom_CO2_flux_corrected * Hours_passed,
-                     CH4_kgha = CH4_mgm2 / 100,
-                     N2O_kgha = N2O_mgm2 / 100,
-                     CO2_kgha = CO2_mgm2 / 100) 
+                filter(!is.na(Chrom_CH4_flux_corrected), Season == "PH") %>% 
+                select("Sampling_date", "Treat", "Plot", "Rep", "Season", "Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected", "Chrom_CO2_flux_corrected") %>% 
+                arrange(Plot, Sampling_date) %>% 
+                rename(Chrom_CCH4_flux_corrected = Chrom_CH4_flux_corrected, Chrom_NN2O_flux_corrected = Chrom_N2O_flux_corrected, Chrom_CCO2_flux_corrected = Chrom_CO2_flux_corrected) %>% 
+                group_by(Plot) %>% 
+                mutate(Days_passed = as.integer(Sampling_date - lag(Sampling_date))) %>% 
+                mutate(Hours_passed = Days_passed * 24) %>% 
+                mutate(CCH4_mgm2 = Chrom_CCH4_flux_corrected * Hours_passed, # *10.000 from m-2 to ha-1 ; /1.000.000 from mg to kg
+                       NN2O_mgm2 = Chrom_NN2O_flux_corrected * Hours_passed,
+                       CCO2_mgm2 = Chrom_CCO2_flux_corrected * Hours_passed,
+                       CCH4_kgha = CCH4_mgm2 / 100,
+                       NN2O_kgha = NN2O_mgm2 / 100,
+                       CCO2_kgha = CCO2_mgm2 / 100) %>% 
+                mutate(Chrom_CH4_flux_transformed = Chrom_CCH4_flux_corrected / ((12/16)^2),
+                       Chrom_N2O_flux_transformed = Chrom_NN2O_flux_corrected / ((28/44) * (14/44)),
+                       Chrom_CO2_flux_transformed = Chrom_CCO2_flux_corrected / ((12/44)^2),
+                       CH4_mgm2 = Chrom_CH4_flux_transformed * Hours_passed, # *10.000 from m-2 to ha-1 ; /1.000.000 from mg to kg
+                       N2O_mgm2 = Chrom_N2O_flux_transformed * Hours_passed,
+                       CO2_mgm2 = Chrom_CO2_flux_transformed * Hours_passed,
+                       CH4_kgha = CH4_mgm2 / 100,
+                       N2O_kgha = N2O_mgm2 / 100,
+                       CO2_kgha = CO2_mgm2 / 100) 
 
+Acc_CHROM_PH$CCH4_kgha <- ifelse(is.na(Acc_CHROM_PH$CCH4_kgha), 0, Acc_CHROM_PH$CCH4_kgha)
+Acc_CHROM_PH$NN2O_kgha <- ifelse(is.na(Acc_CHROM_PH$NN2O_kgha), 0, Acc_CHROM_PH$NN2O_kgha)  
+Acc_CHROM_PH$CCO2_kgha <- ifelse(is.na(Acc_CHROM_PH$CCO2_kgha), 0, Acc_CHROM_PH$CCO2_kgha) 
 Acc_CHROM_PH$CH4_kgha <- ifelse(is.na(Acc_CHROM_PH$CH4_kgha), 0, Acc_CHROM_PH$CH4_kgha)
 Acc_CHROM_PH$N2O_kgha <- ifelse(is.na(Acc_CHROM_PH$N2O_kgha), 0, Acc_CHROM_PH$N2O_kgha)  
 Acc_CHROM_PH$CO2_kgha <- ifelse(is.na(Acc_CHROM_PH$CO2_kgha), 0, Acc_CHROM_PH$CO2_kgha)
 
 # Sum of all plot emission according to treatments:
 
-# i) Summarized df for total cumulative emissions plot:
+# i) Summarized df for total cumulative emissions and GWP plots:
 
 Acc_CHROM_tot_sum <- Acc_CHROM %>%
                     group_by(Treat, Plot) %>%
                     summarise(CH4_kgha_tot = sum(CH4_kgha),
                               N2O_kgha_tot = sum(N2O_kgha),
-                              CO2_kgha_tot = sum(CO2_kgha)) 
+                              CO2_kgha_tot = sum(CO2_kgha),
+                              CCH4_kgha_tot = sum(CCH4_kgha),
+                              NN2O_kgha_tot = sum(NN2O_kgha),
+                              CCO2_kgha_tot = sum(CCO2_kgha)) 
 
 Acc_CHROM_tot_sum$Treat <- factor(Acc_CHROM_tot_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
 Acc_CHROM_tot_sum$GWP <- (Acc_CHROM_tot_sum$CH4_kgha_tot * 25) + (Acc_CHROM_tot_sum$N2O_kgha_tot * 298)
 
-# ii) averaging previous total cumulative emissions df (to plot averaged GWP per Treat):
+# ii) averaging previous total cumulative emissions df (to plot averaged GWP per Treat, so only CH4 and N2O are considered):
 
 Avg_Acc_CHROM_tot_sum <- Acc_CHROM_tot_sum %>% 
                           group_by(Treat) %>%
@@ -279,9 +311,9 @@ Avg_Acc_CHROM_tot_sum <- Acc_CHROM_tot_sum %>%
 Acc_CHROM_GS_sum <- Acc_CHROM %>%
                     filter(Season == "GS") %>% 
                     group_by(Treat, Plot) %>%
-                    summarise(CH4_kgha_tot = sum(CH4_kgha),
-                              N2O_kgha_tot = sum(N2O_kgha),
-                              CO2_kgha_tot = sum(CO2_kgha)) 
+                    summarise(CCH4_kgha_tot = sum(CCH4_kgha),
+                              NN2O_kgha_tot = sum(NN2O_kgha),
+                              CCO2_kgha_tot = sum(CCO2_kgha)) 
 
 Acc_CHROM_GS_sum$Treat <- factor(Acc_CHROM_GS_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
@@ -289,9 +321,11 @@ Acc_CHROM_GS_sum$Treat <- factor(Acc_CHROM_GS_sum$Treat, levels = c('CON', 'MSD'
 
 Acc_CHROM_PH_sum <- Acc_CHROM_PH %>%
                     group_by(Treat, Plot) %>%
-                    summarise(CH4_kgha_tot = sum(CH4_kgha),
-                              N2O_kgha_tot = sum(N2O_kgha),
-                              CO2_kgha_tot = sum(CO2_kgha)) 
+                    summarise(CCH4_kgha_tot = sum(CCH4_kgha),
+                              NN2O_kgha_tot = sum(NN2O_kgha),
+                              CCO2_kgha_tot = sum(CCO2_kgha)) 
 
 Acc_CHROM_PH_sum$Treat <- factor(Acc_CHROM_PH_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
+
+
 
