@@ -296,9 +296,9 @@ Acc_CHROM_tot_sum <- Acc_CHROM %>%
 
 Acc_CHROM_tot_sum$Treat <- factor(Acc_CHROM_tot_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
-Acc_CHROM_tot_sum$GWP <- (Acc_CHROM_tot_sum$CH4_kgha_tot * 25) + (Acc_CHROM_tot_sum$N2O_kgha_tot * 298)
+Acc_CHROM_tot_sum$GWP <- (Acc_CHROM_tot_sum$CH4_kgha_tot * 25) + (Acc_CHROM_tot_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
 
-# ii) averaging previous total cumulative emissions df (to plot averaged GWP per Treat, so only CH4 and N2O are considered):
+# averaging previous total cumulative emissions df (to plot averaged GWP per Treat, so only CH4 and N2O are considered):
 
 Avg_Acc_CHROM_tot_sum <- Acc_CHROM_tot_sum %>% 
                           group_by(Treat) %>%
@@ -306,26 +306,51 @@ Avg_Acc_CHROM_tot_sum <- Acc_CHROM_tot_sum %>%
                                     mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
                                     mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()))
 
-# iii) Summarized df for GS cumulative emissions plot:
+# ii) Summarized df for GS cumulative emissions plot:
 
 Acc_CHROM_GS_sum <- Acc_CHROM %>%
                     filter(Season == "GS") %>% 
                     group_by(Treat, Plot) %>%
-                    summarise(CCH4_kgha_tot = sum(CCH4_kgha),
+                    summarise(CH4_kgha_tot = sum(CH4_kgha),
+                              N2O_kgha_tot = sum(N2O_kgha),
+                              CO2_kgha_tot = sum(CO2_kgha),
+                              CCH4_kgha_tot = sum(CCH4_kgha),
                               NN2O_kgha_tot = sum(NN2O_kgha),
                               CCO2_kgha_tot = sum(CCO2_kgha)) 
 
 Acc_CHROM_GS_sum$Treat <- factor(Acc_CHROM_GS_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
+Acc_CHROM_GS_sum$GWP <- (Acc_CHROM_GS_sum$CH4_kgha_tot * 25) + (Acc_CHROM_GS_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
+
+# averaging previous total cumulative emissions df (to plot averaged GWP per Treat, so only CH4 and N2O are considered):
+
+Avg_Acc_CHROM_GS_sum <- Acc_CHROM_GS_sum %>% 
+                          group_by(Treat) %>%
+                          summarize(mean_GWP = mean(GWP), se_GWP = sd(GWP) / sqrt(n()),
+                                    mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
+                                    mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()))
+
 # iv) Summarized df for PH cumulative emissions plot:
 
 Acc_CHROM_PH_sum <- Acc_CHROM_PH %>%
                     group_by(Treat, Plot) %>%
-                    summarise(CCH4_kgha_tot = sum(CCH4_kgha),
+                    summarise(CH4_kgha_tot = sum(CH4_kgha),
+                              N2O_kgha_tot = sum(N2O_kgha),
+                              CO2_kgha_tot = sum(CO2_kgha),
+                              CCH4_kgha_tot = sum(CCH4_kgha),
                               NN2O_kgha_tot = sum(NN2O_kgha),
                               CCO2_kgha_tot = sum(CCO2_kgha)) 
 
 Acc_CHROM_PH_sum$Treat <- factor(Acc_CHROM_PH_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
+Acc_CHROM_PH_sum$GWP <- (Acc_CHROM_PH_sum$CH4_kgha_tot * 25) + (Acc_CHROM_PH_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
+
+# averaging previous total cumulative emissions df (to plot averaged GWP per Treat, so only CH4 and N2O are considered):
+
+Avg_Acc_CHROM_PH_sum <- Acc_CHROM_PH_sum %>% 
+                          group_by(Treat) %>%
+                          summarize(mean_GWP = mean(GWP), se_GWP = sd(GWP) / sqrt(n()),
+                                    mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
+                                    mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()))
 
 

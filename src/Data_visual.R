@@ -864,17 +864,15 @@ Acc_N2O_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = NN2O_kgha_tot, f
 
 print(Acc_N2O_PH_plot)
 
-# Arrange plots: 
+## 4.3. Plot arrange ####
 
-# Cumulative emission plots:
+# Flux and cumulative emission plots:
 
 CH4_acc_arr <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot, Acc_CH4_PH_plot, Acc_CH4_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc with all titles
 CH4_acc_arr2 <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot2, Acc_CH4_PH_plot2, Acc_CH4_tot_plot2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc adapted to arrange with NN2O acc
 CH4_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM_arr, CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4))) # CCH4 acc arrange with all titles
-
 N2O_acc_arr <- grid.arrange(arrangeGrob(Acc_N2O_GS_plot, Acc_N2O_PH_plot, Acc_N2O_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # NN2O acc adapted to arrange with CCH4 acc
 N2O_CH4_acc_arr <- grid.arrange(arrangeGrob(CH4_acc_arr2, N2O_acc_arr, nrow = 2, ncol = 1)) # CCH4 and NN2O acc arrange
-
 CH4_N2O_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_N2O_CHROM_arr, N2O_CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4))) # CCH4 and NN2O flUx and acc arrange
 
 ggsave("outputs/CERESTRES_results/Chromat_results/CH4_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_acc_rate_arr)
@@ -884,7 +882,7 @@ ggsave("outputs/CERESTRES_results/Chromat_results/CH4_N2O_flux_water_acc.pdf", w
 
 ## 5.1. GWP Boxplots ####
 
-GWP_boxplot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = GWP, fill = Treat, color = Treat)) + 
+GWP_tot_boxplot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = GWP, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(y = expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) +
                             theme_bw()+
@@ -895,13 +893,13 @@ GWP_boxplot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = GWP, fill = Treat, 
                               axis.title.x = element_blank(),
                               plot.title = element_text(hjust = 0.5))
 
-print(GWP_boxplot)
+print(GWP_tot_boxplot)
 
-ggsave("outputs/CERESTRES_results/Chromat_results/GWP_boxplot.pdf", plot = GWP_boxplot ,width = 10, height = 10)
+ggsave("outputs/CERESTRES_results/Chromat_results/GWP_boxplot.pdf", plot = GWP_tot_boxplot ,width = 10, height = 10)
 
 ## 5.2. GWP dots ####
 
-GWP_dots <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
+GWP_tot_dots <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
                     geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 10)+
                     scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
                     scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
@@ -914,7 +912,89 @@ GWP_dots <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWP, group = Treat, colour = Tr
                     geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP), shape = 19, size = 10) +
                     geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP, ymin = mean_GWP - se_GWP, ymax = mean_GWP + se_GWP), width = 0.3, size = 1) 
 
-print(GWP_dots)
+print(GWP_tot_dots)
 
-ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots.pdf", plot = GWP_dots ,width = 10, height = 10)
+ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots.pdf", plot = GWP_tot_dots ,width = 10, height = 10)
+ 
+# Complete Season: Second version, to arrange with GS and PH.
 
+GWP_tot_dots2 <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
+                          geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                          scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                          scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                          theme_bw() +
+                          ggtitle("Complete Season") +
+                          scale_y_continuous(position = "right", limits = c(500, 20000), breaks = seq(0, 20000, by = 4000)) +
+                          ylab(expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) +
+                          theme(
+                            plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt"),
+                            axis.title.y = element_text(margin = margin(r = 12)), 
+                            axis.title.x = element_blank(), 
+                            legend.position = "none", 
+                            axis.text.y = element_text(margin = margin(r = 0)), 
+                            # panel.border = element_rect(size = 1),
+                            plot.title = element_text(hjust = 0.5)) +
+                          geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP), shape = 19, colour = "black", size = 6) +
+                          geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP), shape = 19, size = 5) +
+                          geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP, ymin = mean_GWP - se_GWP, ymax = mean_GWP + se_GWP), width = 0.3, size = 0.5) 
+
+print(GWP_tot_dots2)
+
+layer_scales(GWP_tot_dots2)$y$get_limits() # extracting limits from plot GWP_tot_dots2 to use in GS and PH plots, so they coincide when arranging
+
+# GS
+
+GWP_GS_dots <- ggplot(Acc_CHROM_GS_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
+                        geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                        scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                        scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                        theme_bw() +
+                        labs(x ="Irrigation Strategies") +
+                        ggtitle("Growing Season") +
+                        scale_y_continuous(position = "right", limits = c(500, 20000), breaks = seq(0, 20000, by = 4000)) +
+                        # ylab(expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) + 
+                        theme(
+                          plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt"),
+                          axis.title.y = element_blank(), 
+                          axis.title.x = element_blank(), 
+                          legend.position = "none", 
+                          axis.text.y = element_blank(), 
+                          # panel.border = element_rect(size = 1),
+                          plot.title = element_text(hjust = 0.5)) +
+                        geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWP), shape = 19, colour = "black", size = 6) +
+                        geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWP), shape = 19, size = 5) +
+                        geom_errorbar(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWP, ymin = mean_GWP - se_GWP, ymax = mean_GWP + se_GWP), width = 0.3, size = 0.5) 
+
+print(GWP_GS_dots)
+
+layer_scales(GWP_GS_dots)$y$get_limits() # extracting limits
+
+# PH
+
+GWP_PH_dots <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
+                      geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                      scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                      scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                      theme_bw() +
+                      labs(x = "Irrigation Strategies") +
+                      ggtitle("Post-Harvest") +
+                      scale_y_continuous(position = "right", limits = c(500, 20000), breaks = seq(0, 20000, by = 4000)) +
+                      # ylab(expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) +
+                      theme(
+                        plot.margin = margin(l = 0, r = 5, t = 0, b = 0, unit = "pt"),
+                        axis.title.y = element_blank(), 
+                        legend.position = "none", 
+                        axis.text.y = element_blank(), 
+                        # panel.border = element_rect(size = 1),
+                        plot.title = element_text(hjust = 0.5)) +
+                      geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWP), shape = 19, colour = "black", size = 6) +
+                      geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWP), shape = 19, size = 5) +
+                      geom_errorbar(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWP, ymin = mean_GWP - se_GWP, ymax = mean_GWP + se_GWP), width = 0.3, size = 0.5) 
+
+print(GWP_PH_dots)
+
+## 5.3. Plot arrange ####
+
+GWP_dots_arr <- grid.arrange(arrangeGrob(GWP_GS_dots, GWP_PH_dots, GWP_tot_dots2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # GWP plots arranged (GS, PH and Tot)
+
+ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr.pdf", plot = GWP_dots_arr ,width = 10, height = 10)      
