@@ -997,4 +997,8 @@ print(GWP_PH_dots)
 
 GWP_dots_arr <- grid.arrange(arrangeGrob(GWP_GS_dots, GWP_PH_dots, GWP_tot_dots2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # GWP plots arranged (GS, PH and Tot)
 
-ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr.pdf", plot = GWP_dots_arr ,width = 10, height = 10)      
+ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr.pdf", plot = GWP_dots_arr ,width = 10, height = 10)   
+ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr2.pdf", plot = GWP_dots_arr ,width = 8, height = 10) 
+
+# 6. Greenhouse gas intensity (GHGI) ####
+

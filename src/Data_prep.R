@@ -210,8 +210,6 @@ save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") 
 
 #  3. Cumulative emissions & GWP ####
 
-## 3.1. Preparing dataframes ####
-
 # All previous rates and concentrations in CH4-C, N2O-N and CO2-C. For GWP, units are conventionally: CO2-eq, so rates and concentrations must be transformed (for CH4-C and N2O-N) 
 # before calculating GWP. From now onward, rates, cumulative emissions and GWP distinguish in between CCH4 and CH4, N2O and NN2O, and CO2 and CCO2.
 
@@ -304,7 +302,9 @@ Avg_Acc_CHROM_tot_sum <- Acc_CHROM_tot_sum %>%
                           group_by(Treat) %>%
                           summarize(mean_GWP = mean(GWP), se_GWP = sd(GWP) / sqrt(n()),
                                     mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
-                                    mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()))
+                                    mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()),
+                                    mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
+                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()))
 
 # ii) Summarized df for GS cumulative emissions plot:
 
@@ -328,7 +328,9 @@ Avg_Acc_CHROM_GS_sum <- Acc_CHROM_GS_sum %>%
                           group_by(Treat) %>%
                           summarize(mean_GWP = mean(GWP), se_GWP = sd(GWP) / sqrt(n()),
                                     mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
-                                    mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()))
+                                    mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()),
+                                    mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
+                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()))
 
 # iv) Summarized df for PH cumulative emissions plot:
 
@@ -351,6 +353,10 @@ Avg_Acc_CHROM_PH_sum <- Acc_CHROM_PH_sum %>%
                           group_by(Treat) %>%
                           summarize(mean_GWP = mean(GWP), se_GWP = sd(GWP) / sqrt(n()),
                                     mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
-                                    mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()))
+                                    mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()),
+                                    mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
+                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()))
 
+# 4. Yield ####
 
+Yield_2023 <- read.csv("data/Yield_2023.csv", fileEncoding="latin1", na.strings=c("","NA")) 
