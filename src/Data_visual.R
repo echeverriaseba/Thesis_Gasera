@@ -1092,6 +1092,31 @@ print(GWP_tot_dots2)
 
 layer_scales(GWP_tot_dots2)$y$get_limits() # extracting limits from plot GWP_tot_dots2 to use in GS and PH plots, so they coincide when arranging
 
+# Complete Season: Third version (To arrange with GWPY and Yield)
+
+GWP_tot_dots3 <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
+                        geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                        scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                        scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                        theme_bw() +
+                        ggtitle("Complete Season") +
+                        scale_y_continuous(position = "left", limits = c(500, 20000), breaks = seq(0, 20000, by = 4000)) +
+                        scale_x_discrete(position = "top") +
+                        ylab(expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) +
+                        theme(
+                          plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                          axis.title.y = element_blank(), 
+                          axis.title.x = element_blank(), 
+                          legend.position = "none", 
+                          axis.text.y = element_blank(), 
+                          # panel.border = element_rect(size = 1),
+                          plot.title = element_text(hjust = 0.5)) +
+                        geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP), shape = 19, colour = "black", size = 6) +
+                        geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP), shape = 19, size = 5) +
+                        geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWP, ymin = mean_GWP - se_GWP, ymax = mean_GWP + se_GWP), width = 0.3, size = 0.5) 
+
+print(GWP_tot_dots3)
+
 # GS
 
 GWP_GS_dots <- ggplot(Acc_CHROM_GS_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
@@ -1119,6 +1144,31 @@ print(GWP_GS_dots)
 
 layer_scales(GWP_GS_dots)$y$get_limits() # extracting limits
 
+# GS - Second version (To arrange with GWPY and Yield)
+
+GWP_GS_dots2 <- ggplot(Acc_CHROM_GS_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
+                      geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                      scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                      scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                      theme_bw() +
+                      ggtitle("Growing Season") +
+                      scale_x_discrete(position = "top") +
+                      scale_y_continuous(position = "left", limits = c(500, 20000), breaks = seq(0, 20000, by = 4000)) +
+                      ylab(expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) + 
+                      theme(
+                        plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                        axis.title.y = element_text(margin = margin(r = 0)), 
+                        axis.title.x = element_blank(), 
+                        legend.position = "none", 
+                        axis.text.y = element_text(margin = margin(r = 0)),
+                        # panel.border = element_rect(size = 1),
+                        plot.title = element_text(hjust = 0.5)) +
+                      geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWP), shape = 19, colour = "black", size = 6) +
+                      geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWP), shape = 19, size = 5) +
+                      geom_errorbar(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWP, ymin = mean_GWP - se_GWP, ymax = mean_GWP + se_GWP), width = 0.3, size = 0.5) 
+
+print(GWP_GS_dots2)
+
 # PH
 
 GWP_PH_dots <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
@@ -1143,12 +1193,37 @@ GWP_PH_dots <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWP, group = Treat, colour = 
 
 print(GWP_PH_dots)
 
+# PH - Second version (To arrange with GWPY and Yield)
+
+GWP_PH_dots2 <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWP, group = Treat, colour = Treat, fill = Treat)) +
+                        geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                        scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                        scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                        theme_bw() +
+                        ggtitle("Post-Harvest") +
+                        scale_x_discrete(position = "top") +
+                        scale_y_continuous(position = "left", limits = c(500, 20000), breaks = seq(0, 20000, by = 4000)) +
+                        theme(
+                          plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                          axis.title.y = element_blank(), 
+                          axis.title.x = element_blank(),
+                          legend.position = "none", 
+                          axis.text.y = element_blank(), 
+                          # panel.border = element_rect(size = 1),
+                          plot.title = element_text(hjust = 0.5)) +
+                        geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWP), shape = 19, colour = "black", size = 6) +
+                        geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWP), shape = 19, size = 5) +
+                        geom_errorbar(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWP, ymin = mean_GWP - se_GWP, ymax = mean_GWP + se_GWP), width = 0.3, size = 0.5) 
+
+print(GWP_PH_dots2)
+
 ## 5.3. Plot arrange ####
 
 GWP_dots_arr <- grid.arrange(arrangeGrob(GWP_GS_dots, GWP_PH_dots, GWP_tot_dots2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # GWP plots arranged (GS, PH and Tot)
+GWP_dots_arr2 <- grid.arrange(arrangeGrob(GWP_GS_dots2, GWP_PH_dots2, GWP_tot_dots3, nrow = 1, ncol = 3, widths = c(0.4, 0.3, 0.3) )) # GWP plots arranged (GS, PH and Tot)
 
 ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr.pdf", plot = GWP_dots_arr ,width = 10, height = 10)   
-ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr2.pdf", plot = GWP_dots_arr ,width = 8, height = 10) 
+ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr2.pdf", plot = GWP_dots_arr2 ,width = 8, height = 10) 
 
 # 6. Yield-scaled GWP (GWPY)) ####
 
@@ -1164,7 +1239,7 @@ Yield_2023_plot <- ggplot(Acc_CHROM_tot_sum, aes(Treat, Yield_Mgha_14perc, group
                             scale_y_continuous(limits = c(5.5, 8.5), breaks = seq(5.5, 8.5, by = 0.5)) +
                             ylab(expression(paste("Grain Yield (Mg ", ha^-1, ")"))) +
                             theme(
-                              plot.margin = margin(l = 5.5, r = 5, t = 0, b = 10, unit = "pt"), 
+                              plot.margin = margin(l = 7.5, r = 5, t = 0, b = 10, unit = "pt"), 
                               legend.position = "none", 
                               plot.title = element_blank()) +
                             geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_Yield_Mgha_14perc), shape = 19, colour = "black", size = 6) +
@@ -1199,6 +1274,31 @@ GWPY_tot <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWPY, group = Treat, colour = T
 
 print(GWPY_tot)
 
+# Second version: To arrange with GWP and Yield
+
+GWPY_tot2 <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWPY, group = Treat, colour = Treat, fill = Treat)) +
+                    geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                    scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                    scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                    theme_bw() +
+                    scale_y_continuous(position = "left", limits = c(0, 3500), breaks = seq(0, 3500, by = 500)) +
+                    ylab(expression(paste(GWP[Y], " (kg ", CO[2], " eq ", Mg^-1, ")"))) +
+                    theme(
+                      plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                      axis.title.y = element_blank(), 
+                      axis.title.x = element_blank(), 
+                      legend.position = "none", 
+                      axis.text.y = element_blank(), 
+                      axis.text.x = element_blank(), 
+                      axis.ticks.x=element_blank(),
+                      # panel.border = element_rect(size = 1),
+                      plot.title = element_blank()) +
+                    geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWPY), shape = 19, colour = "black", size = 6) +
+                    geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWPY), shape = 19, size = 5) +
+                    geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWPY, ymin = mean_GWPY - se_GWPY, ymax = mean_GWPY + se_GWPY), width = 0.3, size = 0.5) 
+
+print(GWPY_tot2)
+
 ## 6.3. GWPY - Growing Season ####
 
 GWPY_GS <- ggplot(Acc_CHROM_GS_sum, aes(Treat, GWPY, group = Treat, colour = Treat, fill = Treat)) +
@@ -1223,6 +1323,31 @@ GWPY_GS <- ggplot(Acc_CHROM_GS_sum, aes(Treat, GWPY, group = Treat, colour = Tre
                     geom_errorbar(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWPY, ymin = mean_GWPY - se_GWPY, ymax = mean_GWPY + se_GWPY), width = 0.3, size = 0.5) 
 
 print(GWPY_GS)
+
+# Second version: To arrange with GWP and Yield
+
+GWPY_GS2 <- ggplot(Acc_CHROM_GS_sum, aes(Treat, GWPY, group = Treat, colour = Treat, fill = Treat)) +
+                    geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                    scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                    scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                    theme_bw() +
+                    scale_y_continuous(position = "left", limits = c(0, 3500), breaks = seq(0, 3500, by = 500)) +
+                    ylab(expression(paste(GWP[Y], " (kg ", CO[2], " eq ", Mg^-1, ")"))) +
+                    theme(
+                      plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                      axis.title.y = element_text(margin = margin(r = 5)), 
+                      axis.title.x = element_blank(),
+                      axis.ticks.x=element_blank(),
+                      legend.position = "none", 
+                      axis.text.y = element_text(margin = margin(r = 0)), 
+                      axis.text.x = element_blank(), 
+                      # panel.border = element_rect(size = 1),
+                      plot.title = element_blank()) +
+                    geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWPY), shape = 19, colour = "black", size = 6) +
+                    geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWPY), shape = 19, size = 5) +
+                    geom_errorbar(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWPY, ymin = mean_GWPY - se_GWPY, ymax = mean_GWPY + se_GWPY), width = 0.3, size = 0.5) 
+
+print(GWPY_GS2)
 
 ## 6.4. GWPY - Post-Harvest ####
 
@@ -1249,9 +1374,37 @@ GWPY_PH <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWPY, group = Treat, colour = Tre
 
 print(GWPY_PH)
 
+# Second version: To arrange with GWP and Yield
+
+GWPY_PH2 <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWPY, group = Treat, colour = Treat, fill = Treat)) +
+                    geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                    scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
+                    scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                    theme_bw() +
+                    scale_y_continuous(position = "left", limits = c(0, 3500), breaks = seq(0, 3500, by = 500)) +
+                    ylab(expression(paste(GWP[Y], " (kg ", CO[2], " eq ", Mg^-1, ")"))) +
+                    theme(
+                      plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                      axis.title.y = element_blank(), 
+                      axis.title.x = element_blank(), 
+                      legend.position = "none", 
+                      axis.text.y = element_blank(), 
+                      axis.ticks.x=element_blank(),
+                      axis.text.x = element_blank(), 
+                      # panel.border = element_rect(size = 1),
+                      plot.title = element_blank()) +
+                    geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWPY), shape = 19, colour = "black", size = 6) +
+                    geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWPY), shape = 19, size = 5) +
+                    geom_errorbar(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWPY, ymin = mean_GWPY - se_GWPY, ymax = mean_GWPY + se_GWPY), width = 0.3, size = 0.5) 
+
+print(GWPY_PH2)
+
 ## 6.5. Plot arrange ####
 
 GWPY_arr <- grid.arrange(arrangeGrob(GWPY_GS, GWPY_PH, GWPY_tot, nrow = 1, ncol = 3, widths = c(0.4, 0.3, 0.3) )) # GWPY plots arranged (GS, PH and Tot)
+GWPY_arr2 <- grid.arrange(arrangeGrob(GWPY_GS2, GWPY_PH2, GWPY_tot2, nrow = 1, ncol = 3, widths = c(0.4, 0.3, 0.3) )) # GWPY plots arranged (GS, PH and Tot)
 Yield_GWPY_arr <- grid.arrange(arrangeGrob(GWPY_arr, Yield_2023_plot, nrow = 2, ncol = 1, heights = c(0.7, 0.3))) # Yield and GWPY plots arranged 
+Yield_GWP_GWPY_arr <- grid.arrange(arrangeGrob(GWP_dots_arr2, GWPY_arr2, Yield_2023_plot, nrow = 3, ncol = 1, heights = c(0.4, 0.4, 0.3))) # Yield, GWP and GWPY plots arranged 
 
 ggsave("outputs/CERESTRES_results/Chromat_results/Yield_GWPY_arr.pdf", plot = Yield_GWPY_arr ,width = 10, height = 10)   
+ggsave("outputs/CERESTRES_results/Chromat_results/Yield_GWP_GWPY_arr.pdf", plot = Yield_GWP_GWPY_arr ,width = 10, height = 10) 
