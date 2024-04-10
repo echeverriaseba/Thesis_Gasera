@@ -30,6 +30,7 @@ Water_plot_2023b <- ggplot(Avg_water_level3, aes(x = Sampling_date, color = Trea
                             labs(x = "Sampling date") +
                             geom_hline(yintercept=0, color = "grey") +
                             geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                            annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                             scale_linetype_manual(name = "avg_Water_level_corr",
                                                   values = c("avg_Water_level_corr" = "dashed"), labels = "Water level (cm)") +
                             guides(linetype = guide_legend(override.aes = list(color = "black"))) +
@@ -118,21 +119,23 @@ Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                     scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                     geom_hline(yintercept = 0, color = "grey") +
                                     geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                    annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
+                                    annotate('text', x = as.Date("2023-06-27"), y = 45, label = "Mid-Season Drainage", size = 4, color = "darkgrey", angle = '90') +
                                     annotate('text', x = as.Date("2023-09-30"), y = 45, label = "Growing Season", size = 4, color = "grey", angle = '90') +
                                     annotate('text', x = as.Date("2023-10-06"), y = 45, label = "Post-Harvest", size = 4, color = "grey", angle = '270') +
                                     theme(
-                                      axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
-                                      axis.text.y = element_text(color = "black"),
-                                      axis.title.y.right = element_text(color = "black"),
-                                      axis.text.y.right = element_text(color = "black"),
-                                      strip.background = element_blank(),
-                                      strip.placement = "outside",
-                                      legend.text = element_text(size = 12),
-                                      legend.title = element_text(size = 12),
-                                      axis.text.x = element_blank(),
-                                      legend.position="top",
-                                      plot.margin = unit(c(1, 1, 0, 1.3), "lines"),
-                                      plot.title = element_blank()) +
+                                          axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
+                                          axis.text.y = element_text(color = "black"),
+                                          axis.title.y.right = element_text(color = "black"),
+                                          axis.text.y.right = element_text(color = "black"),
+                                          strip.background = element_blank(),
+                                          strip.placement = "outside",
+                                          legend.text = element_text(size = 12),
+                                          legend.title = element_text(size = 12),
+                                          axis.text.x = element_blank(),
+                                          legend.position="top",
+                                          plot.margin = unit(c(1, 1, 0, 1.3), "lines"),
+                                          plot.title = element_blank()) +
                                     xlab(NULL) 
 
 print(Rates_vs_time_CH4_CHROM)
@@ -246,6 +249,7 @@ Rates_vs_time_N2O_CHROM2 <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color 
                                   # ggtitle(element_blank()) +
                                   geom_hline(yintercept=0, color = "grey") +
                                   geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                  annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                   scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                   theme(
                                     axis.title.y = element_text(color = "black"), 
@@ -690,7 +694,7 @@ dev.off()
 
 ## 4.1. Cumulative CCH4 ####
 
-# Total (GS & PH):
+# Total_boxplot (GS & PH):
 
 # Complete version: with all titles, to be plotted alone (arrange only CCH4 acc GS, PH, Tot - "CH4_acc_arr"):
 
@@ -728,7 +732,30 @@ Acc_CH4_tot_plot2 <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CCH4_kgha_tot
 
 print(Acc_CH4_tot_plot2)
 
-# GS:
+# Total_dots (GS & PH):
+
+Acc_CH4_tot_plot3 <- ggplot(Acc_CHROM_tot_sum, aes(Treat, CCH4_kgha_tot, group = Treat, colour = Treat, fill = Treat)) +
+                            geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                            scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                            scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                            ggtitle("Complete Season") +
+                            theme_bw() +
+                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              plot.title = element_text(hjust = 0.5),
+                              axis.text.x = element_blank(),
+                              axis.title.x = element_blank(),
+                              legend.position = "none")+
+                            geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot), shape = 19, colour = "black", size = 6) +
+                            geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot), shape = 19, size = 5) +
+                            geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot, ymin =  mean_CCH4_kgha_tot - se_CCH4_kgha_tot, 
+                                                                            ymax =  mean_CCH4_kgha_tot + se_CCH4_kgha_tot), width = 0.3, size = 0.5) 
+
+print(Acc_CH4_tot_plot3)
+
+# GS_boxplot:
 
 # Complete version: with all titles, to be plotted alone (arrange only CCH4 acc GS, PH, Tot - "CH4_acc_arr"):
 
@@ -768,7 +795,32 @@ Acc_CH4_GS_plot2 <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CCH4_kgha_tot, 
 
 print(Acc_CH4_GS_plot2)
 
-# PH:
+# GS_dots:
+
+Acc_CH4_GS_plot3 <- ggplot(Acc_CHROM_GS_sum, aes(Treat, CCH4_kgha_tot, group = Treat, colour = Treat, fill = Treat)) +
+                            geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                            scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                            scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                            ggtitle("Growing Season") +
+                            theme_bw() +
+                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              plot.title = element_text(hjust = 0.5),
+                              axis.text.x = element_blank(),
+                              axis.title.x = element_blank(),
+                              legend.position = "none")+
+                            geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot), shape = 19, colour = "black", size = 6) +
+                            geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot), shape = 19, size = 5) +
+                            geom_errorbar(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot, ymin =  mean_CCH4_kgha_tot - se_CCH4_kgha_tot, 
+                                                  ymax =  mean_CCH4_kgha_tot + se_CCH4_kgha_tot), width = 0.3, size = 0.5) 
+
+print(Acc_CH4_GS_plot3)
+
+# PH_boxplot:
 
 # Complete version: with all titles, to be plotted alone (arrange only CCH4 acc GS, PH, Tot - "CH4_acc_arr"):
 
@@ -808,9 +860,34 @@ Acc_CH4_PH_plot2 <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CCH4_kgha_tot, 
 
 print(Acc_CH4_PH_plot2)
 
+# PH_dots:
+
+Acc_CH4_PH_plot3 <- ggplot(Acc_CHROM_PH_sum, aes(Treat, CCH4_kgha_tot, group = Treat, colour = Treat, fill = Treat)) +
+                            geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                            scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                            scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                            ggtitle("Post-Harvest") +
+                            theme_bw() +
+                            labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
+                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              plot.title = element_text(hjust = 0.5),
+                              axis.text.x = element_blank(),
+                              axis.title.x = element_blank(),
+                              legend.position = "none")+
+                            geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot), shape = 19, colour = "black", size = 6) +
+                            geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot), shape = 19, size = 5) +
+                            geom_errorbar(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y =  mean_CCH4_kgha_tot, ymin =  mean_CCH4_kgha_tot - se_CCH4_kgha_tot, 
+                                                                           ymax =  mean_CCH4_kgha_tot + se_CCH4_kgha_tot), width = 0.3, size = 0.5) 
+
+print(Acc_CH4_PH_plot3)
+
 ## 4.2. Cumulative NN2O ####
 
-# Total (GS & PH):
+# Total_boxplot (GS & PH):
 
 Acc_N2O_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = NN2O_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
@@ -828,7 +905,29 @@ print(Acc_N2O_tot_plot)
 
 Acc_N2O_tot_plot_limits <- layer_scales(Acc_N2O_tot_plot)$y$get_limits() # extracting limits from plot Acc_N2O_tot_plot to use in Acc_N2O_tot_plot, so they coincide when arranging
 
-# GS:
+# Total_dots (GS & PH):
+
+Acc_N2O_tot_plot2 <- ggplot(Acc_CHROM_tot_sum, aes(Treat, NN2O_kgha_tot, group = Treat, colour = Treat, fill = Treat)) +
+                            geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                            scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                            scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                            ggtitle("Complete Season") +
+                            theme_bw() +
+                            labs(x = "", y = expression(paste("Cumulative ",N-N[2], "O emissions (kg ", ha^-1, ")"))) +
+                            # theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            scale_y_continuous(position = "right", limits = c(-2, 5), breaks = seq(-2, 5, by = 1)) +
+                            theme(
+                              plot.title = element_blank(),
+                              legend.position = "none",
+                              plot.margin = margin(l = 0, r = 10, t = 0, b = 14, unit = "pt")) +
+                            geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, colour = "black", size = 6) +
+                            geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, size = 5) +
+                            geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot, ymin =  mean_NN2O_kgha_tot - se_NN2O_kgha_tot, 
+                                                                            ymax =  mean_NN2O_kgha_tot + se_NN2O_kgha_tot), width = 0.3, size = 0.5) 
+
+print(Acc_N2O_tot_plot2)
+
+# GS_boxplot:
 
 Acc_N2O_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = NN2O_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
@@ -846,7 +945,30 @@ Acc_N2O_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = NN2O_kgha_tot, f
 
 print(Acc_N2O_GS_plot)
 
-# PH:
+# GS_dots:
+
+Acc_N2O_GS_plot2 <- ggplot(Acc_CHROM_GS_sum, aes(Treat, NN2O_kgha_tot, group = Treat, colour = Treat, fill = Treat)) +
+                            geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                            scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                            scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                            ggtitle("Growing Season") +
+                            theme_bw() +
+                            labs(x = "", y = expression(paste("Cumulative ",N-N[2], "O emissions (kg ", ha^-1, ")"))) +
+                            scale_y_continuous(position = "right", limits = c(-2, 5), breaks = seq(-2, 5, by = 1)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              legend.position = "none",
+                              plot.title = element_blank(),
+                              plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt")) +
+                            geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, colour = "black", size = 6) +
+                            geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, size = 5) +
+                            geom_errorbar(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot, ymin =  mean_NN2O_kgha_tot - se_NN2O_kgha_tot, 
+                                                                            ymax =  mean_NN2O_kgha_tot + se_NN2O_kgha_tot), width = 0.3, size = 0.5) 
+
+print(Acc_N2O_GS_plot2)
+
+# PH_boxplot:
 
 Acc_N2O_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = NN2O_kgha_tot, fill = Treat, color = Treat)) + 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
@@ -864,19 +986,47 @@ Acc_N2O_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = NN2O_kgha_tot, f
 
 print(Acc_N2O_PH_plot)
 
+# PH_dots:
+
+Acc_N2O_PH_plot2 <- ggplot(Acc_CHROM_PH_sum, aes(Treat, NN2O_kgha_tot, group = Treat, colour = Treat, fill = Treat)) +
+                            geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                            scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                            scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                            ggtitle("Post-Harvest") +
+                            theme_bw() +
+                            labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",N-N[2], "O emissions (kg ", ha^-1, ")"))) +
+                            scale_y_continuous(position = "right", limits = c(-2, 5), breaks = seq(-2, 5, by = 1)) +
+                            theme(
+                              axis.text.y = element_blank(),
+                              axis.title.y = element_blank(),
+                              legend.position = "none",
+                              plot.title = element_blank(),
+                              plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt")) +
+                            geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, colour = "black", size = 6) +
+                            geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, size = 5) +
+                            geom_errorbar(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot, ymin =  mean_NN2O_kgha_tot - se_NN2O_kgha_tot, 
+                                                                           ymax =  mean_NN2O_kgha_tot + se_NN2O_kgha_tot), width = 0.3, size = 0.5) 
+
+print(Acc_N2O_PH_plot2)
+
 ## 4.3. Plot arrange ####
 
 # Flux and cumulative emission plots:
 
-CH4_acc_arr <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot, Acc_CH4_PH_plot, Acc_CH4_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc with all titles
-CH4_acc_arr2 <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot2, Acc_CH4_PH_plot2, Acc_CH4_tot_plot2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc adapted to arrange with NN2O acc
+CH4_acc_arr <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot, Acc_CH4_PH_plot, Acc_CH4_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc with all titles - BOXPLOTS
+CH4_acc_arr2 <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot2, Acc_CH4_PH_plot2, Acc_CH4_tot_plot2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc adapted to arrange with NN2O acc - BOXPLOTS
+CH4_acc_arr3 <- grid.arrange(arrangeGrob(Acc_CH4_GS_plot3, Acc_CH4_PH_plot3, Acc_CH4_tot_plot3, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # CCH4 acc adapted to arrange with NN2O acc - DOTS
 CH4_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM_arr, CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4))) # CCH4 acc arrange with all titles
-N2O_acc_arr <- grid.arrange(arrangeGrob(Acc_N2O_GS_plot, Acc_N2O_PH_plot, Acc_N2O_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # NN2O acc adapted to arrange with CCH4 acc
-N2O_CH4_acc_arr <- grid.arrange(arrangeGrob(CH4_acc_arr2, N2O_acc_arr, nrow = 2, ncol = 1)) # CCH4 and NN2O acc arrange
-CH4_N2O_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_N2O_CHROM_arr, N2O_CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4))) # CCH4 and NN2O flUx and acc arrange
+N2O_acc_arr <- grid.arrange(arrangeGrob(Acc_N2O_GS_plot, Acc_N2O_PH_plot, Acc_N2O_tot_plot, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # NN2O acc adapted to arrange with CCH4 acc - BOXPLOTS
+N2O_acc_arr2 <- grid.arrange(arrangeGrob(Acc_N2O_GS_plot2, Acc_N2O_PH_plot2, Acc_N2O_tot_plot2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # NN2O acc adapted to arrange with CCH4 acc - DOTS
+N2O_CH4_acc_arr <- grid.arrange(arrangeGrob(CH4_acc_arr2, N2O_acc_arr, nrow = 2, ncol = 1)) # CCH4 and NN2O acc arrange - BOXPLOTS
+N2O_CH4_acc_arr2 <- grid.arrange(arrangeGrob(CH4_acc_arr3, N2O_acc_arr2, nrow = 2, ncol = 1)) # CCH4 and NN2O acc arrange - DOTS
+CH4_N2O_acc_rate_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_N2O_CHROM_arr, N2O_CH4_acc_arr, nrow = 1, ncol = 2, widths = c(0.6, 0.4))) # CCH4 and NN2O flUx and acc arrange - BOXPLOTS
+CH4_N2O_acc_rate_arr2 <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_N2O_CHROM_arr, N2O_CH4_acc_arr2, nrow = 1, ncol = 2, widths = c(0.6, 0.4))) # CCH4 and NN2O flUx and acc arrange - DOTS
 
 ggsave("outputs/CERESTRES_results/Chromat_results/CH4_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_acc_rate_arr)
-ggsave("outputs/CERESTRES_results/Chromat_results/CH4_N2O_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_N2O_acc_rate_arr)
+ggsave("outputs/CERESTRES_results/Chromat_results/CH4_N2O_flux_water_acc.pdf", width = 20, height = 10, plot = CH4_N2O_acc_rate_arr) # - BOXPLOTS
+ggsave("outputs/CERESTRES_results/Chromat_results/CH4_N2O_flux_water_acc2.pdf", width = 20, height = 10, plot = CH4_N2O_acc_rate_arr2) # - DOTS
 
 # 5. GWP ####
 
@@ -1000,5 +1150,108 @@ GWP_dots_arr <- grid.arrange(arrangeGrob(GWP_GS_dots, GWP_PH_dots, GWP_tot_dots2
 ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr.pdf", plot = GWP_dots_arr ,width = 10, height = 10)   
 ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr2.pdf", plot = GWP_dots_arr ,width = 8, height = 10) 
 
-# 6. Greenhouse gas intensity (GHGI) ####
+# 6. Yield-scaled GWP (GWPY)) ####
 
+## 6.1. Yield plot ####
+
+Yield_2023_plot <- ggplot(Acc_CHROM_tot_sum, aes(Treat, Yield_Mgha_14perc, group = Treat, colour = Treat, fill = Treat)) +
+                            geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                            scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                            scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                            theme_bw() +
+                            labs(x = "Irrigation Strategies") +
+                            # scale_x_discrete(position = "top") +
+                            scale_y_continuous(limits = c(5.5, 8.5), breaks = seq(5.5, 8.5, by = 0.5)) +
+                            ylab(expression(paste("Grain Yield (Mg ", ha^-1, ")"))) +
+                            theme(
+                              plot.margin = margin(l = 5.5, r = 5, t = 0, b = 10, unit = "pt"), 
+                              legend.position = "none", 
+                              plot.title = element_blank()) +
+                            geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_Yield_Mgha_14perc), shape = 19, colour = "black", size = 6) +
+                            geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_Yield_Mgha_14perc), shape = 19, size = 5) +
+                            geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_Yield_Mgha_14perc, ymin = mean_Yield_Mgha_14perc - se_Yield_Mgha_14perc,
+                                                                           ymax = mean_Yield_Mgha_14perc + se_Yield_Mgha_14perc), width = 0.3, size = 0.5) 
+
+print(Yield_2023_plot)
+
+## 6.2. GWPY - Complete Season ####
+
+GWPY_tot <- ggplot(Acc_CHROM_tot_sum, aes(Treat, GWPY, group = Treat, colour = Treat, fill = Treat)) +
+                        geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                        scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                        scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                        theme_bw() +
+                        ggtitle("Complete Season") +
+                        scale_y_continuous(position = "left", limits = c(0, 3500), breaks = seq(0, 3500, by = 500)) +
+                        scale_x_discrete(position = "top") +
+                        ylab(expression(paste(GWP[Y], " (kg ", CO[2], " eq ", Mg^-1, ")"))) +
+                        theme(
+                          plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                          axis.title.y = element_blank(), 
+                          axis.title.x = element_blank(), 
+                          legend.position = "none", 
+                          axis.text.y = element_blank(), 
+                          # panel.border = element_rect(size = 1),
+                          plot.title = element_text(hjust = 0.5)) +
+                        geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWPY), shape = 19, colour = "black", size = 6) +
+                        geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWPY), shape = 19, size = 5) +
+                        geom_errorbar(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y = mean_GWPY, ymin = mean_GWPY - se_GWPY, ymax = mean_GWPY + se_GWPY), width = 0.3, size = 0.5) 
+
+print(GWPY_tot)
+
+## 6.3. GWPY - Growing Season ####
+
+GWPY_GS <- ggplot(Acc_CHROM_GS_sum, aes(Treat, GWPY, group = Treat, colour = Treat, fill = Treat)) +
+                    geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                    scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
+                    scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                    theme_bw() +
+                    ggtitle("Growing Season") +
+                    scale_y_continuous(position = "left", limits = c(0, 3500), breaks = seq(0, 3500, by = 500)) +
+                    scale_x_discrete(position = "top") +
+                    ylab(expression(paste(GWP[Y], " (kg ", CO[2], " eq ", Mg^-1, ")"))) +
+                    theme(
+                      plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                      axis.title.y = element_text(margin = margin(r = 3)), 
+                      axis.title.x = element_blank(), 
+                      legend.position = "none", 
+                      axis.text.y = element_text(margin = margin(r = 0)), 
+                      # panel.border = element_rect(size = 1),
+                      plot.title = element_text(hjust = 0.5)) +
+                    geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWPY), shape = 19, colour = "black", size = 6) +
+                    geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWPY), shape = 19, size = 5) +
+                    geom_errorbar(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y = mean_GWPY, ymin = mean_GWPY - se_GWPY, ymax = mean_GWPY + se_GWPY), width = 0.3, size = 0.5) 
+
+print(GWPY_GS)
+
+## 6.4. GWPY - Post-Harvest ####
+
+GWPY_PH <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWPY, group = Treat, colour = Treat, fill = Treat)) +
+                    geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
+                    scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
+                    scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
+                    theme_bw() +
+                    ggtitle("Post-Harvest") +
+                    scale_y_continuous(position = "left", limits = c(0, 3500), breaks = seq(0, 3500, by = 500)) +
+                    scale_x_discrete(position = "top") +
+                    ylab(expression(paste(GWP[Y], " (kg ", CO[2], " eq ", Mg^-1, ")"))) +
+                    theme(
+                      plot.margin = margin(l = 0, r = 5, t = 0, b = 5, unit = "pt"),
+                      axis.title.y = element_blank(), 
+                      axis.title.x = element_blank(), 
+                      legend.position = "none", 
+                      axis.text.y = element_blank(), 
+                      # panel.border = element_rect(size = 1),
+                      plot.title = element_text(hjust = 0.5)) +
+                    geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWPY), shape = 19, colour = "black", size = 6) +
+                    geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWPY), shape = 19, size = 5) +
+                    geom_errorbar(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y = mean_GWPY, ymin = mean_GWPY - se_GWPY, ymax = mean_GWPY + se_GWPY), width = 0.3, size = 0.5) 
+
+print(GWPY_PH)
+
+## 6.5. Plot arrange ####
+
+GWPY_arr <- grid.arrange(arrangeGrob(GWPY_GS, GWPY_PH, GWPY_tot, nrow = 1, ncol = 3, widths = c(0.4, 0.3, 0.3) )) # GWPY plots arranged (GS, PH and Tot)
+Yield_GWPY_arr <- grid.arrange(arrangeGrob(GWPY_arr, Yield_2023_plot, nrow = 2, ncol = 1, heights = c(0.7, 0.3))) # Yield and GWPY plots arranged 
+
+ggsave("outputs/CERESTRES_results/Chromat_results/Yield_GWPY_arr.pdf", plot = Yield_GWPY_arr ,width = 10, height = 10)   

@@ -208,7 +208,12 @@ Master_GHG_2023 <- Master_GHG_2023 %>%
 write_xlsx(Master_GHG_2023, "outputs/CERESTRES_results/Master_GHG_2023.xlsx") # Excel file with Master_GHG_2023.
 save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") # Saves the Master_GHG_2023 dataframe to open with other R projects/scripts
 
-#  3. Cumulative emissions & GWP ####
+#  3. Yield ####
+
+Yield_2023 <- read.csv("data/Yield_2023.csv", fileEncoding="latin1", na.strings=c("","NA")) %>% 
+                        mutate(Yield_Mgha_14perc = Yield_kgha_14perc / 1000)
+
+#  4. Cumulative emissions, GWP and GHGI ####
 
 # All previous rates and concentrations in CH4-C, N2O-N and CO2-C. For GWP, units are conventionally: CO2-eq, so rates and concentrations must be transformed (for CH4-C and N2O-N) 
 # before calculating GWP. From now onward, rates, cumulative emissions and GWP distinguish in between CCH4 and CH4, N2O and NN2O, and CO2 and CCO2.
@@ -281,7 +286,7 @@ Acc_CHROM_PH$CO2_kgha <- ifelse(is.na(Acc_CHROM_PH$CO2_kgha), 0, Acc_CHROM_PH$CO
 
 # Sum of all plot emission according to treatments:
 
-# i) Summarized df for total cumulative emissions and GWP plots:
+# i) Summarized df for total cumulative emissions, GWP  and GHGI plots:
 
 Acc_CHROM_tot_sum <- Acc_CHROM %>%
                     group_by(Treat, Plot) %>%
@@ -296,6 +301,10 @@ Acc_CHROM_tot_sum$Treat <- factor(Acc_CHROM_tot_sum$Treat, levels = c('CON', 'MS
 
 Acc_CHROM_tot_sum$GWP <- (Acc_CHROM_tot_sum$CH4_kgha_tot * 25) + (Acc_CHROM_tot_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
 
+Acc_CHROM_tot_sum <- merge(x = Acc_CHROM_tot_sum, y = Yield_2023[, c("Plot", "Yield_Mgha_14perc")], all.x = TRUE) # Importing Yield data
+
+Acc_CHROM_tot_sum$GWPY <- Acc_CHROM_tot_sum$GWP / Acc_CHROM_tot_sum$Yield_Mgha_14perc # Calculating Yield-scaled GWP (Kg CO2-eq Mg-1 grain yield)
+
 # averaging previous total cumulative emissions df (to plot averaged GWP per Treat, so only CH4 and N2O are considered):
 
 Avg_Acc_CHROM_tot_sum <- Acc_CHROM_tot_sum %>% 
@@ -304,7 +313,9 @@ Avg_Acc_CHROM_tot_sum <- Acc_CHROM_tot_sum %>%
                                     mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
                                     mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()),
                                     mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
-                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()))
+                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()),
+                                    mean_Yield_Mgha_14perc = mean(Yield_Mgha_14perc), se_Yield_Mgha_14perc = sd(Yield_Mgha_14perc) / sqrt(n()),
+                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n()))
 
 # ii) Summarized df for GS cumulative emissions plot:
 
@@ -322,6 +333,10 @@ Acc_CHROM_GS_sum$Treat <- factor(Acc_CHROM_GS_sum$Treat, levels = c('CON', 'MSD'
 
 Acc_CHROM_GS_sum$GWP <- (Acc_CHROM_GS_sum$CH4_kgha_tot * 25) + (Acc_CHROM_GS_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
 
+Acc_CHROM_GS_sum <- merge(x = Acc_CHROM_GS_sum, y = Yield_2023[, c("Plot", "Yield_Mgha_14perc")], all.x = TRUE) # Importing Yield data
+
+Acc_CHROM_GS_sum$GWPY <- Acc_CHROM_GS_sum$GWP / Acc_CHROM_GS_sum$Yield_Mgha_14perc # Calculating Yield-scaled GWP (Kg CO2-eq Mg-1 grain yield)
+
 # averaging previous total cumulative emissions df (to plot averaged GWP per Treat, so only CH4 and N2O are considered):
 
 Avg_Acc_CHROM_GS_sum <- Acc_CHROM_GS_sum %>% 
@@ -330,7 +345,9 @@ Avg_Acc_CHROM_GS_sum <- Acc_CHROM_GS_sum %>%
                                     mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
                                     mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()),
                                     mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
-                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()))
+                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()),
+                                    mean_Yield_Mgha_14perc = mean(Yield_Mgha_14perc), se_Yield_Mgha_14perc = sd(Yield_Mgha_14perc) / sqrt(n()),
+                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n()))
 
 # iv) Summarized df for PH cumulative emissions plot:
 
@@ -347,6 +364,10 @@ Acc_CHROM_PH_sum$Treat <- factor(Acc_CHROM_PH_sum$Treat, levels = c('CON', 'MSD'
 
 Acc_CHROM_PH_sum$GWP <- (Acc_CHROM_PH_sum$CH4_kgha_tot * 25) + (Acc_CHROM_PH_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
 
+Acc_CHROM_PH_sum <- merge(x = Acc_CHROM_PH_sum, y = Yield_2023[, c("Plot", "Yield_Mgha_14perc")], all.x = TRUE) # Importing Yield data
+
+Acc_CHROM_PH_sum$GWPY <- Acc_CHROM_PH_sum$GWP / Acc_CHROM_PH_sum$Yield_Mgha_14perc # Calculating Yield-scaled GWP (Kg CO2-eq Mg-1 grain yield)
+
 # averaging previous total cumulative emissions df (to plot averaged GWP per Treat, so only CH4 and N2O are considered):
 
 Avg_Acc_CHROM_PH_sum <- Acc_CHROM_PH_sum %>% 
@@ -355,8 +376,6 @@ Avg_Acc_CHROM_PH_sum <- Acc_CHROM_PH_sum %>%
                                     mean_CH4_kgha_tot = mean(CH4_kgha_tot), se_CH4_kgha_tot = sd(CH4_kgha_tot) / sqrt(n()),
                                     mean_N2O_kgha_tot = mean(N2O_kgha_tot), se_N2O_kgha_tot = sd(N2O_kgha_tot) / sqrt(n()),
                                     mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
-                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()))
-
-# 4. Yield ####
-
-Yield_2023 <- read.csv("data/Yield_2023.csv", fileEncoding="latin1", na.strings=c("","NA")) 
+                                    mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()),
+                                    mean_Yield_Mgha_14perc = mean(Yield_Mgha_14perc), se_Yield_Mgha_14perc = sd(Yield_Mgha_14perc) / sqrt(n()),
+                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n()))
