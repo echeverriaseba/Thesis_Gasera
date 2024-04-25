@@ -208,12 +208,95 @@ Master_GHG_2023 <- Master_GHG_2023 %>%
 write_xlsx(Master_GHG_2023, "outputs/CERESTRES_results/Master_GHG_2023.xlsx") # Excel file with Master_GHG_2023.
 save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") # Saves the Master_GHG_2023 dataframe to open with other R projects/scripts
 
-#  3. Yield ####
+# 3. Physicochemical parameters ####
+
+## 3.1. GHG_Physicochemical dataframe ####
+
+Physchem_2023 <- read.csv("data/Physchem_2023.csv", fileEncoding="latin1", na.strings=c("","NA"))
+Physchem_2023$Sampling_date <- as.Date(Physchem_2023$Sampling_date)
+
+Master_GHG_2023_phys  <- Master_GHG_2023  %>% 
+  left_join(Physchem_2023, by = c("Sampling_date", "Plot", "Rep", "Treat"))
+
+## 3.2. MicroBIO_Physicochemical dataframe ####
+
+
+
+
+
+# To have a single value for each physicochemical variable representing the conditions in which microorganisms were developed within plots, the average of the three previous
+# physicochemical measurements to the microorganism biodiversity samplings is calculated:
+
+## Assigning Sampling, Rep and Treat:
+Sampling <- c("1", "2", "3", "4")
+Treat <- c("AWD", "MSD", "CON", "MSD", "AWD", "CON", "MSD", "CON", "AWD", "AWD", "MSD", "CON", "MSD", "AWD", "CON")
+Rep <- c("1", "1", "1", "2", "2", "2", "3", "3", "3", "4", "4", "4", "5", "5", "5")
+
+## Subsetting Physchem_2023, only considering three Sampling dates previous to each biodiversity samplings.
+## Sampling column indicating to which biodiversity sampling each physicochemical sampling is assigned.
+## Biodiversity sampling date 1: "2023-05-18" -> 3 previous dates: no data, first physchem: "2023-07-07"
+## Biodiversity sampling date 2: "2023-07-05" -> 3 previous dates: "2023-07-03", "2023-06-29", "2023-06-20"
+## Biodiversity sampling date 3: "2023-08-16" -> 3 previous dates: "2023-08-16", "2023-08-10", "2023-08-07"
+## Biodiversity sampling date 4: "2023-09-05" -> 3 previous dates: "2023-08-31", "2023-08-24", "2023-08-16"
+## Biodiversity sampling date 5: "2023-10-11" -> 3 previous dates: "2023-10-10", "2023-09-27", "2023-09-21"
+## Biodiversity sampling date 6: "2023-11-06" -> 3 previous dates: "2023-11-03", "2023-10-27", "2023-10-23"
+
+prev.dates <- c(NA, NA, NA, "2023-07-03", "2023-06-29", "2023-06-20", "2023-08-16", "2023-08-10", "2023-08-07", "2023-08-31", "2023-08-24", "2023-08-16",
+                "2023-10-10", "2023-09-27", "2023-09-21", "2023-11-03", "2023-10-27", "2023-10-23")
+sampling.prev <- c("1", "1", "1", "2", "2", "2", "3", "3", "3", "4", "4", "4", "5", "5", "5", "6", "6", "6")
+PrevDate_Samp <- data.frame(prev.dates, sampling.prev) # Creates data frame with previous dates to average
+PrevDate_Samp$prev.dates <- as.Date(PrevDate_Samp$prev.dates)
+physchem_avg_2023 <- merge(Physchem_2023, PrevDate_Samp, by.x="Sampling_date", by.y="prev.dates") # Assigning sampling.prev values
+colnames(physchem_avg_2023)[colnames(physchem_avg_2023) == "sampling.prev"] <- "Sampling" # Replacing column name "sampling.prev" for "Sampling"
+
+## Creating sampdateID and averaging the three previous dates:
+physchem_avg_2023$sampdateID <- paste0(physchem_avg_2023$Plot, "_" ,physchem_avg_2023$Sampling) # ID to group.by() and summarise(mean)
+
+physchem_avg_2023 <- physchem_avg_2023 %>% 
+  group_by(sampdateID) %>% 
+  summarise(Conduct_microS_cm = mean(Conduct_microS_cm, na.rm = TRUE), Temp_10_cm = mean(Temp_10_cm, na.rm = TRUE), pH_soil = mean(pH_soil, na.rm = TRUE), 
+                                      Redox_pot = mean(Redox_pot, na.rm = TRUE), Water_temp = mean(Water_temp, na.rm = TRUE), O2_percent = mean(O2_percent, na.rm = TRUE), 
+                                      O2_mg_l = mean(O2_mg_l, na.rm = TRUE), Salinity = mean(Salinity, na.rm = TRUE), pH_water = mean(pH_water, na.rm = TRUE), 
+                                      across(Plot, ~., .names = "Plot"), across(Treat, ~., .names = "Treat"), 
+                                      across(Rep, ~., .names = "Rep"), across(Sampling, ~., .names = "Sampling")) %>% # Keeps previous Plot, Treat, Rep and Sampling data.
+                            filter(row_number() == max(row_number())) # As the across() function triplicates each row (due to takingo Plot, Rep... from each of the three averaged values) this keeps only one row. 
+
+Sampling_date <- c("2022-06-10", "2022-07-15", "2022-08-02", "2022-08-31") # Macroinvertebrate sampling dates
+Sampling <- c("1", "2", "3", "4")
+Sam.Date <- data.frame(Sampling_date, Sampling) # data frame to include "Sampling"
+Sam.Date$Sampling_date <- as.Date(Sam.Date$Sampling_date)
+physchem_avg_2023 <- merge(physchem_avg_2023, Sam.Date, by.x="Sampling", by.y="Sampling") # Assigning Sampling values
+physchem_avg_2023$siteID <- paste0(physchem_avg_2023$Plot, "_", physchem_avg_2023$Sampling, "_", physchem_avg_2023$Treat) # Creates siteID to merge later with Hills_ColOdoHet data frame
+physchem_avg_2023 <- physchem_avg_2023 %>% 
+                      arrange(Sampling_date, Plot) %>% # Sorts by Sampling_date and then by Plot
+                      select(Sampling_date, Sampling, Plot, Treat, Rep, Conduct_microS_cm, Temp_10_cm, pH_soil, Redox_pot, Water_temp, O2_percent, O2_mg_l, Salinity, pH_water, sampdateID, siteID) %>%  # Re-orders.
+                      mutate(across(c(Water_temp, O2_percent, O2_mg_l, Salinity, pH_water), ~ifelse(is.nan(.), NA, .))) # Replaces NaN for NA values.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 4. Yield ####
 
 Yield_2023 <- read.csv("data/Yield_2023.csv", fileEncoding="latin1", na.strings=c("","NA")) %>% 
                         mutate(Yield_Mgha_14perc = Yield_kgha_14perc / 1000)
 
-#  4. Cumulative emissions, GWP and GHGI ####
+# 5. Cumulative emissions, GWP and GWPY ####
 
 # All previous rates and concentrations in CH4-C, N2O-N and CO2-C. For GWP, units are conventionally: CO2-eq, so rates and concentrations must be transformed (for CH4-C and N2O-N) 
 # before calculating GWP. From now onward, rates, cumulative emissions and GWP distinguish in between CCH4 and CH4, N2O and NN2O, and CO2 and CCO2.
