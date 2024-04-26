@@ -220,20 +220,12 @@ Master_GHG_2023_phys  <- Master_GHG_2023  %>%
 
 ## 3.2. MicroBIO_Physicochemical dataframe ####
 
-
-
-
-
 # To have a single value for each physicochemical variable representing the conditions in which microorganisms were developed within plots, the average of the three previous
 # physicochemical measurements to the microorganism biodiversity samplings is calculated:
 
-## Assigning Sampling, Rep and Treat:
-Sampling <- c("1", "2", "3", "4")
-Treat <- c("AWD", "MSD", "CON", "MSD", "AWD", "CON", "MSD", "CON", "AWD", "AWD", "MSD", "CON", "MSD", "AWD", "CON")
-Rep <- c("1", "1", "1", "2", "2", "2", "3", "3", "3", "4", "4", "4", "5", "5", "5")
-
 ## Subsetting Physchem_2023, only considering three Sampling dates previous to each biodiversity samplings.
 ## Sampling column indicating to which biodiversity sampling each physicochemical sampling is assigned.
+
 ## Biodiversity sampling date 1: "2023-05-18" -> 3 previous dates: no data, first physchem: "2023-07-07"
 ## Biodiversity sampling date 2: "2023-07-05" -> 3 previous dates: "2023-07-03", "2023-06-29", "2023-06-20"
 ## Biodiversity sampling date 3: "2023-08-16" -> 3 previous dates: "2023-08-16", "2023-08-10", "2023-08-07"
@@ -259,37 +251,19 @@ physchem_avg_2023 <- physchem_avg_2023 %>%
                                       O2_mg_l = mean(O2_mg_l, na.rm = TRUE), Salinity = mean(Salinity, na.rm = TRUE), pH_water = mean(pH_water, na.rm = TRUE), 
                                       across(Plot, ~., .names = "Plot"), across(Treat, ~., .names = "Treat"), 
                                       across(Rep, ~., .names = "Rep"), across(Sampling, ~., .names = "Sampling")) %>% # Keeps previous Plot, Treat, Rep and Sampling data.
-                            filter(row_number() == max(row_number())) # As the across() function triplicates each row (due to takingo Plot, Rep... from each of the three averaged values) this keeps only one row. 
+                            filter(row_number() == max(row_number())) # As the across() function triplicates each row (due to taking Plot, Rep... from each of the three averaged values), 
+                                                                      # this keeps only one row. 
 
-Sampling_date <- c("2022-06-10", "2022-07-15", "2022-08-02", "2022-08-31") # Macroinvertebrate sampling dates
-Sampling <- c("1", "2", "3", "4")
+Sampling_date <- c("2023-05-18", "2023-07-05", "2023-08-16", "2023-09-05", "2023-10-11", "2023-11-06") # Microbe communities sampling dates
+Sampling <- c("1", "2", "3", "4", "5", "6")
 Sam.Date <- data.frame(Sampling_date, Sampling) # data frame to include "Sampling"
 Sam.Date$Sampling_date <- as.Date(Sam.Date$Sampling_date)
 physchem_avg_2023 <- merge(physchem_avg_2023, Sam.Date, by.x="Sampling", by.y="Sampling") # Assigning Sampling values
-physchem_avg_2023$siteID <- paste0(physchem_avg_2023$Plot, "_", physchem_avg_2023$Sampling, "_", physchem_avg_2023$Treat) # Creates siteID to merge later with Hills_ColOdoHet data frame
+physchem_avg_2023$siteID <- paste0(physchem_avg_2023$Plot, "_", physchem_avg_2023$Sampling, "_", physchem_avg_2023$Treat) # Creates siteID to merge later with Master_GHG_2023_phys data frame
 physchem_avg_2023 <- physchem_avg_2023 %>% 
                       arrange(Sampling_date, Plot) %>% # Sorts by Sampling_date and then by Plot
                       select(Sampling_date, Sampling, Plot, Treat, Rep, Conduct_microS_cm, Temp_10_cm, pH_soil, Redox_pot, Water_temp, O2_percent, O2_mg_l, Salinity, pH_water, sampdateID, siteID) %>%  # Re-orders.
-                      mutate(across(c(Water_temp, O2_percent, O2_mg_l, Salinity, pH_water), ~ifelse(is.nan(.), NA, .))) # Replaces NaN for NA values.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                      mutate(across(c(pH_soil, Water_temp, O2_percent, O2_mg_l, Salinity, pH_water), ~ifelse(is.nan(.), NA, .))) # Replaces NaN for NA values.
 
 # 4. Yield ####
 
