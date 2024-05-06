@@ -90,17 +90,39 @@ colnames(Master_GHG_2023)[colnames(Master_GHG_2023) == "CH4_flux_mgm2h"] <- "Gas
 colnames(Master_GHG_2023)[colnames(Master_GHG_2023) == "N2O_flux_mgm2h"] <- "Gasera_N2O_flux_mgm2h" 
 colnames(Master_GHG_2023)[colnames(Master_GHG_2023) == "CO2_flux_mgm2h"] <- "Gasera_CO2_flux_mgm2h" 
 
+
+
+
+
+
+
+
+## 1.1. Gasera fluxes transformation to CCH4, NN2O and CCO2 ####
+
+Master_GHG_2023 <- Master_GHG_2023 %>% 
+  mutate(Gasera_CCH4_flux_mgm2h = Gasera_CH4_flux_mgm2h * ((12/16)^2),
+         Gasera_NN2O_flux_mgm2h = Gasera_N2O_flux_mgm2h * ((28/44) * (14/44)),
+         Gasera_CCO2_flux_mgm2h = Gasera_CO2_flux_mgm2h * ((12/44)^2)) 
+
+# Master_GHG_2023 <- Master_GHG_2023[, c("Sampling_date", "Plot", "Chamber_type", "Row_Nr", "Treat", "Code_Nr", "Code", "Rep", "Gasera_CH4_flux_mgm2h", "Gasera_CCH4_flux_mgm2h",
+#                                        "Gasera_CH4_flux_mgm2h_cor", "Gasera_N2O_flux_mgm2h", "Gasera_NN2O_flux_mgm2h", "Gasera_N2O_flux_mgm2h_cor", "Gasera_CO2_flux_mgm2h", "Gasera_CCO2_flux_mgm2h",
+#                                        "Gasera_CO2_flux_mgm2h_cor", "Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected", "Chrom_CO2_flux_corrected", "Water_level_piezo", "Water_level_ruler_Gasera", 
+#                                        "Water_level_ruler", "Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_initial", "Env_temp_final", "Doub_piez", "Season")]
+
 Master_GHG_2023 <- Master_GHG_2023 %>% 
                   mutate(Gasera_CH4_flux_mgm2h_cor = case_when(R2_CH4 < 0.7 ~ 0, TRUE ~ Gasera_CH4_flux_mgm2h),
                          Gasera_N2O_flux_mgm2h_cor = case_when(R2_N2O < 0.7 ~ 0, TRUE ~ Gasera_N2O_flux_mgm2h),
-                         Gasera_CO2_flux_mgm2h_cor = case_when(R2_CO2 < 0.7 ~ 0, TRUE ~ Gasera_CO2_flux_mgm2h)
+                         Gasera_CO2_flux_mgm2h_cor = case_when(R2_CO2 < 0.7 ~ 0, TRUE ~ Gasera_CO2_flux_mgm2h),
+                         Gasera_CCH4_flux_mgm2h_cor = case_when(R2_CH4 < 0.7 ~ 0, TRUE ~ Gasera_CCH4_flux_mgm2h),
+                         Gasera_NN2O_flux_mgm2h_cor = case_when(R2_N2O < 0.7 ~ 0, TRUE ~ Gasera_NN2O_flux_mgm2h),
+                         Gasera_CCO2_flux_mgm2h_cor = case_when(R2_CO2 < 0.7 ~ 0, TRUE ~ Gasera_CCO2_flux_mgm2h)
   ) # Applying R2 < 0.7 ~ 0 rate correction to Gasera rates
 
-Master_GHG_2023 <- Master_GHG_2023 %>% 
-                    select(Row_Nr, Sampling_date, Plot, Treat, Code_Nr, Code, Rep, Chamber_type, Gasera_CH4_flux_mgm2h, Gasera_CH4_flux_mgm2h_cor, Gasera_N2O_flux_mgm2h, 
-                           Gasera_N2O_flux_mgm2h_cor, Gasera_CO2_flux_mgm2h, Gasera_CO2_flux_mgm2h_cor,
-                           Chrom_CH4_flux_corrected, Chrom_N2O_flux_corrected, Chrom_CO2_flux_corrected, Water_level_piezo, Water_level_ruler, Water_level_corr,
-                           Temp_soil, Rice_cover_prop, Env_temp_initial, Env_temp_final)
+# Master_GHG_2023 <- Master_GHG_2023 %>% 
+#                     select(Row_Nr, Sampling_date, Plot, Treat, Code_Nr, Code, Rep, Chamber_type, Gasera_CH4_flux_mgm2h, Gasera_CH4_flux_mgm2h, Gasera_CH4_flux_mgm2h_cor, Gasera_CCH4_flux_mgm2h_cor,
+#                            Gasera_N2O_flux_mgm2h, Gasera_NN2O_flux_mgm2h, Gasera_N2O_flux_mgm2h_cor, Gasera_NN2O_flux_mgm2h_cor, Gasera_CO2_flux_mgm2h, Gasera_CCO2_flux_mgm2h, Gasera_CO2_flux_mgm2h_cor,
+#                            Gasera_CCO2_flux_mgm2h_cor, Chrom_CH4_flux_corrected, Chrom_N2O_flux_corrected, Chrom_CO2_flux_corrected, Water_level_piezo, Water_level_ruler, Water_level_corr,
+#                            Temp_soil, Rice_cover_prop, Env_temp_initial, Env_temp_final)
 
 # Including water level measured during Gasera samplings ("Water_level_gasera_ruler")
 
@@ -115,7 +137,6 @@ Gasera_field_2023 <- Gasera_field_2023 %>%
 
 Master_GHG_2023 <- merge(Master_GHG_2023, Gasera_field_2023[, c("Date", "Plot", "Chamber_type", "Water_level_ruler_Gasera")], by.x = c("Sampling_date", "Plot", "Chamber_type"), 
                          by.y = c("Date", "Plot", "Chamber_type"), all.x = TRUE, all.y = TRUE)
-Master_GHG_2023 <- Master_GHG_2023[, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 25, 19, 20, 21, 22, 23, 24)] # Reorder columns
 
 Master_GHG_2023 <- Master_GHG_2023[!(Master_GHG_2023 $Plot %in% c("P10","P11", "P12", "P13", "P14", "P15")), ] #Removes Rep 4 and Rep 5 (only sampled during first dates)
 
@@ -205,12 +226,18 @@ Master_GHG_2023 <- Master_GHG_2023 %>%
 
 ## Outputs:
 
+Master_GHG_2023 <- Master_GHG_2023[, c("Sampling_date", "Plot", "Chamber_type", "Row_Nr", "Treat", "Code_Nr", "Code", "Rep", "Gasera_CH4_flux_mgm2h", "Gasera_CCH4_flux_mgm2h", # Reorder columns
+                                       "Gasera_CH4_flux_mgm2h_cor", "Gasera_CCH4_flux_mgm2h_cor", "Gasera_N2O_flux_mgm2h", "Gasera_NN2O_flux_mgm2h", "Gasera_N2O_flux_mgm2h_cor", 
+                                       "Gasera_NN2O_flux_mgm2h_cor", "Gasera_CO2_flux_mgm2h", "Gasera_CCO2_flux_mgm2h", "Gasera_CO2_flux_mgm2h_cor", "Gasera_CCO2_flux_mgm2h_cor", 
+                                       "Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected", "Chrom_CO2_flux_corrected", "Water_level_piezo", "Water_level_ruler_Gasera",
+                                       "Water_level_ruler", "Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_initial", "Env_temp_final", "Doub_piez", "Season")]
+
 write_xlsx(Master_GHG_2023, "outputs/CERESTRES_results/Master_GHG_2023.xlsx") # Excel file with Master_GHG_2023.
 save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") # Saves the Master_GHG_2023 dataframe to open with other R projects/scripts
 
-# 3. Physicochemical parameters ####
+# 4. Physicochemical parameters ####
 
-## 3.1. GHG_Physicochemical dataframe ####
+## 4.1. GHG_Physicochemical dataframe ####
 
 Physchem_2023 <- read.csv("data/Physchem_2023.csv", fileEncoding="latin1", na.strings=c("","NA"))
 Physchem_2023$Sampling_date <- as.Date(Physchem_2023$Sampling_date)
@@ -218,7 +245,7 @@ Physchem_2023$Sampling_date <- as.Date(Physchem_2023$Sampling_date)
 Master_GHG_2023_phys  <- Master_GHG_2023  %>% 
   left_join(Physchem_2023, by = c("Sampling_date", "Plot", "Rep", "Treat"))
 
-## 3.2. MicroBIO_Physicochemical dataframe ####
+## 4.2. MicroBIO_Physicochemical dataframe ####
 
 # To have a single value for each physicochemical variable representing the conditions in which microorganisms were developed within plots, the average of the three previous
 # physicochemical measurements to the microorganism biodiversity samplings is calculated:
@@ -242,6 +269,7 @@ physchem_avg_2023 <- merge(Physchem_2023, PrevDate_Samp, by.x="Sampling_date", b
 colnames(physchem_avg_2023)[colnames(physchem_avg_2023) == "sampling.prev"] <- "Sampling" # Replacing column name "sampling.prev" for "Sampling"
 
 ## Creating sampdateID and averaging the three previous dates:
+
 physchem_avg_2023$sampdateID <- paste0(physchem_avg_2023$Plot, "_" ,physchem_avg_2023$Sampling) # ID to group.by() and summarise(mean)
 
 physchem_avg_2023 <- physchem_avg_2023 %>% 
@@ -265,12 +293,12 @@ physchem_avg_2023 <- physchem_avg_2023 %>%
                       select(Sampling_date, Sampling, Plot, Treat, Rep, Conduct_microS_cm, Temp_10_cm, pH_soil, Redox_pot, Water_temp, O2_percent, O2_mg_l, Salinity, pH_water, sampdateID, siteID) %>%  # Re-orders.
                       mutate(across(c(pH_soil, Water_temp, O2_percent, O2_mg_l, Salinity, pH_water), ~ifelse(is.nan(.), NA, .))) # Replaces NaN for NA values.
 
-# 4. Yield ####
+# 5. Yield ####
 
 Yield_2023 <- read.csv("data/Yield_2023.csv", fileEncoding="latin1", na.strings=c("","NA")) %>% 
                         mutate(Yield_Mgha_14perc = Yield_kgha_14perc / 1000)
 
-# 5. Cumulative emissions, GWP and GWPY ####
+# 6. Cumulative emissions, GWP and GWPY ####
 
 # All previous rates and concentrations in CH4-C, N2O-N and CO2-C. For GWP, units are conventionally: CO2-eq, so rates and concentrations must be transformed (for CH4-C and N2O-N) 
 # before calculating GWP. From now onward, rates, cumulative emissions and GWP distinguish in between CCH4 and CH4, N2O and NN2O, and CO2 and CCO2.
