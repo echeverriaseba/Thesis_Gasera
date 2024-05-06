@@ -58,15 +58,17 @@ Avg_rates_compare_TR <- Master_GHG_2023 %>%  # New df with averaged emissions fo
                           filter(Chamber_type == "TR" | is.na(Chamber_type)) %>% 
                           group_by(Sampling_date, Treat) %>% 
                           summarize(avg_Gasera_CH4_flux_mgm2h = mean(Gasera_CH4_flux_mgm2h, na.rm = TRUE), avg_Gasera_CH4_flux_mgm2h_cor = mean(Gasera_CH4_flux_mgm2h_cor, na.rm = TRUE), 
-                                    avg_Chrom_CH4_flux_mgm2h = mean(Chrom_CH4_flux_corrected, na.rm = TRUE),
+                                    avg_Chrom_CH4_flux_mgm2h = mean(Chrom_CH4_flux_corrected, na.rm = TRUE), avg_Gasera_CCH4_flux_mgm2h = mean(Gasera_CCH4_flux_mgm2h, na.rm = TRUE),
+                                    avg_Gasera_CCH4_flux_mgm2h_cor = mean(Gasera_CCH4_flux_mgm2h_cor, na.rm = TRUE),
                                     avg_Gasera_N2O_flux_mgm2h = mean(Gasera_N2O_flux_mgm2h, na.rm = TRUE), avg_Gasera_N2O_flux_mgm2h_cor = mean(Gasera_N2O_flux_mgm2h_cor, na.rm = TRUE),
-                                    avg_Chrom_N2O_flux_mgm2h = mean(Chrom_N2O_flux_corrected, na.rm = TRUE),
+                                    avg_Chrom_N2O_flux_mgm2h = mean(Chrom_N2O_flux_corrected, na.rm = TRUE), avg_Gasera_NN2O_flux_mgm2h = mean(Gasera_NN2O_flux_mgm2h, na.rm = TRUE), 
+                                    avg_Gasera_NN2O_flux_mgm2h_cor = mean(Gasera_NN2O_flux_mgm2h_cor, na.rm = TRUE),
                                     avg_Gasera_CO2_flux_mgm2h = mean(Gasera_CO2_flux_mgm2h, na.rm = TRUE), avg_Gasera_CO2_flux_mgm2h_cor = mean(Gasera_CO2_flux_mgm2h_cor, na.rm = TRUE),
-                                    avg_Chrom_CO2_flux_mgm2h = mean(Chrom_CO2_flux_corrected, na.rm = TRUE))
+                                    avg_Chrom_CO2_flux_mgm2h = mean(Chrom_CO2_flux_corrected, na.rm = TRUE), avg_Gasera_CCO2_flux_mgm2h = mean(Gasera_CCO2_flux_mgm2h, na.rm = TRUE), 
+                                    avg_Gasera_CCO2_flux_mgm2h_cor = mean(Gasera_CCO2_flux_mgm2h_cor, na.rm = TRUE))
 
-Avg_rates_compare_TR$avg_Chrom_CH4_flux_mgm2h[is.na(Avg_rates_compare_TR$avg_Chrom_CH4_flux_mgm2h)] <- NA # Replace NaN for NA values
-Avg_rates_compare_TR$avg_Chrom_N2O_flux_mgm2h[is.na(Avg_rates_compare_TR$avg_Chrom_N2O_flux_mgm2h)] <- NA # Replace NaN for NA values
-Avg_rates_compare_TR$avg_Chrom_CO2_flux_mgm2h[is.na(Avg_rates_compare_TR$avg_Chrom_CO2_flux_mgm2h)] <- NA # Replace NaN for NA values
+Avg_rates_compare_TR <- Avg_rates_compare_TR %>% # Replace NaN for NA values
+                        mutate_if(is.numeric, ~na_if(., NaN))
 
 Avg_rates_compare_TR_CHROM <- Avg_rates_compare_TR %>% # New df with averaged Chromatography results, it's filtered for NA using CH4 column but works as well for N2O and CO2.
                               filter(!is.na(avg_Chrom_CH4_flux_mgm2h))
@@ -86,15 +88,17 @@ Avg_rates_compare_DK <- Master_GHG_2023 %>%  # New df with averaged emissions fo
                             filter(Chamber_type == "DK" | is.na(Chamber_type)) %>% 
                             group_by(Sampling_date, Treat) %>% 
                             summarize(avg_Gasera_CH4_flux_mgm2h = mean(Gasera_CH4_flux_mgm2h, na.rm = TRUE), avg_Gasera_CH4_flux_mgm2h_cor = mean(Gasera_CH4_flux_mgm2h_cor, na.rm = TRUE), 
-                                      avg_Chrom_CH4_flux_mgm2h = mean(Chrom_CH4_flux_corrected, na.rm = TRUE),
+                                      avg_Chrom_CH4_flux_mgm2h = mean(Chrom_CH4_flux_corrected, na.rm = TRUE), avg_Gasera_CCH4_flux_mgm2h = mean(Gasera_CCH4_flux_mgm2h, na.rm = TRUE),
+                                      avg_Gasera_CCH4_flux_mgm2h_cor = mean(Gasera_CCH4_flux_mgm2h_cor, na.rm = TRUE),
                                       avg_Gasera_N2O_flux_mgm2h = mean(Gasera_N2O_flux_mgm2h, na.rm = TRUE), avg_Gasera_N2O_flux_mgm2h_cor = mean(Gasera_N2O_flux_mgm2h_cor, na.rm = TRUE),
-                                      avg_Chrom_N2O_flux_mgm2h = mean(Chrom_N2O_flux_corrected, na.rm = TRUE),
+                                      avg_Chrom_N2O_flux_mgm2h = mean(Chrom_N2O_flux_corrected, na.rm = TRUE), avg_Gasera_NN2O_flux_mgm2h = mean(Gasera_NN2O_flux_mgm2h, na.rm = TRUE), 
+                                      avg_Gasera_NN2O_flux_mgm2h_cor = mean(Gasera_NN2O_flux_mgm2h_cor, na.rm = TRUE),
                                       avg_Gasera_CO2_flux_mgm2h = mean(Gasera_CO2_flux_mgm2h, na.rm = TRUE), avg_Gasera_CO2_flux_mgm2h_cor = mean(Gasera_CO2_flux_mgm2h_cor, na.rm = TRUE),
-                                      avg_Chrom_CO2_flux_mgm2h = mean(Chrom_CO2_flux_corrected, na.rm = TRUE))
+                                      avg_Chrom_CO2_flux_mgm2h = mean(Chrom_CO2_flux_corrected, na.rm = TRUE), avg_Gasera_CCO2_flux_mgm2h = mean(Gasera_CCO2_flux_mgm2h, na.rm = TRUE), 
+                                      avg_Gasera_CCO2_flux_mgm2h_cor = mean(Gasera_CCO2_flux_mgm2h_cor, na.rm = TRUE))
 
-Avg_rates_compare_DK$avg_Chrom_CH4_flux_mgm2h[is.na(Avg_rates_compare_DK$avg_Chrom_CH4_flux_mgm2h)] <- NA # Replace NaN for NA values
-Avg_rates_compare_DK$avg_Chrom_N2O_flux_mgm2h[is.na(Avg_rates_compare_DK$avg_Chrom_N2O_flux_mgm2h)] <- NA # Replace NaN for NA values
-Avg_rates_compare_DK$avg_Chrom_CO2_flux_mgm2h[is.na(Avg_rates_compare_DK$avg_Chrom_CO2_flux_mgm2h)] <- NA # Replace NaN for NA values
+Avg_rates_compare_DK <- Avg_rates_compare_DK %>% # Replace NaN for NA values
+                        mutate_if(is.numeric, ~na_if(., NaN))
 
 Avg_rates_compare_DK_CHROM <- Avg_rates_compare_DK %>% # New df with averaged Chromatography results, it's filtered for NA using CH4 column but works as well for N2O and CO2.
                               filter(!is.na(avg_Chrom_CH4_flux_mgm2h))
@@ -122,7 +126,7 @@ Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                     annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                     annotate('text', x = as.Date("2023-06-27"), y = 45, label = "Mid-Season Drainage", size = 4, color = "darkgrey", angle = '90') +
                                     annotate('text', x = as.Date("2023-09-30"), y = 45, label = "Growing Season", size = 4, color = "grey", angle = '90') +
-                                    annotate('text', x = as.Date("2023-10-06"), y = 45, label = "Post-Harvest", size = 4, color = "grey", angle = '270') +
+                                    annotate('text', x = as.Date("2023-10-06"), y = 45, label = "Fallow Season", size = 4, color = "grey", angle = '270') +
                                     theme(
                                           axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
                                           axis.text.y = element_text(color = "black"),
@@ -142,13 +146,16 @@ print(Rates_vs_time_CH4_CHROM)
 
 #### CH4 - Gasera (not corrected) ####
 
-Rates_vs_time_CH4_GASERA <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CH4_flux_mgm2h, group = Treat)) +
-                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CH4_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
-                                    geom_line(aes(y = avg_Gasera_CH4_flux_mgm2h)) + #, linetype = "Average CH4 Flux - Gasera")) +
+Rates_vs_time_CH4_GASERA <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CCH4_flux_mgm2h, group = Treat)) +
+                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CCH4_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                    geom_line(aes(y = avg_Gasera_CCH4_flux_mgm2h)) + #, linetype = "Average CH4 Flux - Gasera")) +
                                     scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                     theme_bw() +
-                                    labs(y = expression(paste("Gasera - ", CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                    labs(y = expression(paste("Gasera - C-", CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                     xlab("Time") +
+                                    geom_hline(yintercept=0, color = "grey") +
+                                    geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                    annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                     scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                     theme(
                                       axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
@@ -159,7 +166,7 @@ Rates_vs_time_CH4_GASERA <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color
                                       axis.text.x = element_blank(),
                                       strip.placement = "outside",
                                       legend.position="none",
-                                      plot.margin = unit(c(0, 1, 0, 1), "lines")) +
+                                      plot.margin = unit(c(0, 1, 0, 1.3), "lines")) +
                                     xlab(NULL) 
 
 print(Rates_vs_time_CH4_GASERA)
@@ -167,12 +174,15 @@ print(Rates_vs_time_CH4_GASERA)
 #### CH4 - Gasera (corrected) ####
 
 Rates_vs_time_CH4_GASERA_cor <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CH4_flux_mgm2h, group = Treat)) +
-                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CH4_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
-                                    geom_line(aes(y = avg_Gasera_CH4_flux_mgm2h_cor)) + #, linetype = "Average CH4 Flux - Gasera")) +
+                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CCH4_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                    geom_line(aes(y = avg_Gasera_CCH4_flux_mgm2h_cor)) + #, linetype = "Average CH4 Flux - Gasera")) +
                                     scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                     theme_bw() +
-                                    labs(y = expression(paste("Gasera (corrected)- ", CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                    labs(y = expression(paste("Gasera (corrected)- C-", CH[4], " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                     xlab("Time") +
+                                    geom_hline(yintercept=0, color = "grey") +
+                                    geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                    annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                     scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                     theme(
                                       axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
@@ -183,7 +193,7 @@ Rates_vs_time_CH4_GASERA_cor <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(c
                                       axis.text.x = element_blank(),
                                       strip.placement = "outside",
                                       legend.position="none",
-                                      plot.margin = unit(c(0, 1, 0, 1), "lines")) +
+                                      plot.margin = unit(c(0, 1, 0, 1.3), "lines")) +
                                     xlab(NULL) 
 
 print(Rates_vs_time_CH4_GASERA_cor)
@@ -217,10 +227,17 @@ Rates_vs_time_N2O_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                   geom_line(aes(y = avg_Chrom_N2O_flux_mgm2h)) + # linetype = "Average N2O Flux - Chromatography")) +   , na.rm = TRUE) +
                                   scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                   theme_bw() +
-                                  labs(y = expression(paste("Chromatography - ", N[2], "O", " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                  scale_y_continuous(breaks = seq(-0.5, 1, by = 0.5), limits=c(-0.9, 1.5)) +
+                                  labs(y = expression(paste("Chromatography - N-", N[2], "O", " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                   xlab("Time") +
-                                  ggtitle(expression(paste(N[2], "O", " Emission rates Gasera vs. Chromatography"))) +
+                                  ggtitle(expression(paste("N-", N[2], "O", " Emission rates Gasera vs. Chromatography"))) +
                                   scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
+                                  geom_hline(yintercept = 0, color = "grey") +
+                                  geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                  annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
+                                  annotate('text', x = as.Date("2023-06-27"), y = 0.75, label = "Mid-Season Drainage", size = 4, color = "darkgrey", angle = '90') +
+                                  annotate('text', x = as.Date("2023-10-01"), y = 0.75, label = "Growing Season", size = 4, color = "grey", angle = '90') +
+                                  annotate('text', x = as.Date("2023-10-05"), y = 0.75, label = "Fallow Season", size = 4, color = "grey", angle = '270') +
                                   theme(
                                     axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
                                     axis.text.y = element_text(color = "black"),
@@ -246,7 +263,6 @@ Rates_vs_time_N2O_CHROM2 <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color 
                                   theme_bw() +
                                   labs(y = expression(paste("N-", N[2], "O", " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                   xlab("Time") +
-                                  # ggtitle(element_blank()) +
                                   geom_hline(yintercept=0, color = "grey") +
                                   geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
                                   annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
@@ -272,13 +288,16 @@ print(Rates_vs_time_N2O_CHROM2)
 #### N2O - Gasera (not corrected) ####
 
 Rates_vs_time_N2O_GASERA <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_N2O_flux_mgm2h, group = Treat)) +
-                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_N2O_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
-                                    geom_line(aes(y = avg_Gasera_N2O_flux_mgm2h)) + #, linetype = "Average N2O Flux - Gasera")) +
+                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_NN2O_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                    geom_line(aes(y = avg_Gasera_NN2O_flux_mgm2h)) + #, linetype = "Average N2O Flux - Gasera")) +
                                     scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                     theme_bw() +
-                                    labs(y = expression(paste("Gasera - ", N[2], "O", " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                    labs(y = expression(paste("Gasera - N-", N[2], "O", " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                     xlab("Time") +
                                     scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
+                                    geom_hline(yintercept = 0, color = "grey") +
+                                    geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                    annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                     theme(
                                       axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
                                       axis.text.y = element_text(color = "black"),
@@ -288,7 +307,7 @@ Rates_vs_time_N2O_GASERA <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color
                                       axis.text.x = element_blank(),
                                       strip.placement = "outside",
                                       legend.position="none",
-                                      plot.margin = unit(c(0, 1, 0, 1.3), "lines")) +
+                                      plot.margin = unit(c(0, 1, 0.15, 0.8), "lines")) +
                                     xlab(NULL) 
 
 print(Rates_vs_time_N2O_GASERA)
@@ -296,13 +315,16 @@ print(Rates_vs_time_N2O_GASERA)
 #### N2O - Gasera (corrected) ####
 
 Rates_vs_time_N2O_GASERA_cor <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_N2O_flux_mgm2h, group = Treat)) +
-                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_N2O_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
-                                    geom_line(aes(y = avg_Gasera_N2O_flux_mgm2h_cor)) + #, linetype = "Average N2O Flux - Gasera")) +
+                                    geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_NN2O_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                    geom_line(aes(y = avg_Gasera_NN2O_flux_mgm2h_cor)) + #, linetype = "Average N2O Flux - Gasera")) +
                                     scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                     theme_bw() +
-                                    labs(y = expression(paste("Gasera (corrected) - ", N[2], "O", " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                    labs(y = expression(paste("Gasera (corrected) - N-", N[2], "O", " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                     xlab("Time") +
                                     scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
+                                    geom_hline(yintercept = 0, color = "grey") +
+                                    geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                    annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                     theme(
                                       axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
                                       axis.text.y = element_text(color = "black"),
@@ -312,7 +334,7 @@ Rates_vs_time_N2O_GASERA_cor <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(c
                                       axis.text.x = element_blank(),
                                       strip.placement = "outside",
                                       legend.position="none",
-                                      plot.margin = unit(c(0, 1, 0, 1.3), "lines")) +
+                                      plot.margin = unit(c(0, 1, 0, 0.8), "lines")) +
                                     xlab(NULL) 
 
 print(Rates_vs_time_N2O_GASERA_cor)
@@ -338,10 +360,16 @@ Rates_vs_time_CO2_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                   geom_line(aes(y = avg_Chrom_CO2_flux_mgm2h)) + # linetype = "Average CO2 Flux - Chromatography")) +   , na.rm = TRUE) +
                                   scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                   theme_bw() +
-                                  labs(y = expression(paste("Chromatography - ", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                  labs(y = expression(paste("Chromatography - C-", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                   xlab("Time") +
-                                  ggtitle(expression(paste(CO[2], " Emission rates Gasera vs. Chromatography"))) +
+                                  ggtitle(expression(paste("C-", CO[2], " Emission rates Gasera vs. Chromatography"))) +
                                   scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
+                                  geom_hline(yintercept = 0, color = "grey") +
+                                  geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                  annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
+                                  annotate('text', x = as.Date("2023-06-27"), y = 65, label = "Mid-Season Drainage", size = 4, color = "darkgrey", angle = '90') +
+                                  annotate('text', x = as.Date("2023-10-01"), y = 75, label = "Growing Season", size = 4, color = "grey", angle = '90') +
+                                  annotate('text', x = as.Date("2023-10-05"), y = 75, label = "Fallow Season", size = 4, color = "grey", angle = '270') +
                                   theme(
                                     axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
                                     axis.text.y = element_text(color = "black"),
@@ -353,7 +381,7 @@ Rates_vs_time_CO2_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                     legend.title = element_text(size = 12),
                                     axis.text.x = element_blank(),
                                     legend.position="top"
-                                    , plot.margin = unit(c(1, 1, 0, 1), "lines")) +
+                                    , plot.margin = unit(c(1, 1, 0, 0.9), "lines")) +
                                   xlab(NULL) 
 
 print(Rates_vs_time_CO2_CHROM)
@@ -361,12 +389,15 @@ print(Rates_vs_time_CO2_CHROM)
 #### CO2 - Gasera Transparent (not corrected) ####
 
 Rates_vs_time_CO2_GASERA_TR <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CO2_flux_mgm2h, group = Treat)) +
-                                      geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CO2_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
-                                      geom_line(aes(y = avg_Gasera_CO2_flux_mgm2h)) + #, linetype = "Average CO2 Flux - Gasera")) +
+                                      geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CCO2_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                      geom_line(aes(y = avg_Gasera_CCO2_flux_mgm2h)) + #, linetype = "Average CO2 Flux - Gasera")) +
                                       scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                       theme_bw() +
-                                      labs(y = expression(paste("Gasera (Transp. ch.) - ", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                      labs(y = expression(paste("Gasera (Transp. ch.) - C-", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                       xlab("Time") +
+                                      geom_hline(yintercept=0, color = "grey") +
+                                      geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                      annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                       scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                       theme(
                                         axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
@@ -377,7 +408,7 @@ Rates_vs_time_CO2_GASERA_TR <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(co
                                         axis.text.x = element_blank(),
                                         strip.placement = "outside",
                                         legend.position="none",
-                                        plot.margin = unit(c(0, 1, 0, 0.3), "lines")) +
+                                        plot.margin = unit(c(0, 1, 0, 0.6), "lines")) +
                                       xlab(NULL) 
 
 print(Rates_vs_time_CO2_GASERA_TR)
@@ -385,12 +416,15 @@ print(Rates_vs_time_CO2_GASERA_TR)
 #### CO2 - Gasera Dark (not corrected) ####
 
 Rates_vs_time_CO2_GASERA_DK <- ggplot(data = Avg_rates_compare_DK_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CO2_flux_mgm2h, group = Treat)) +
-                                      geom_line(data = Master_GHG_2023_GASERA_DK, aes(x = Sampling_date, y = Gasera_CO2_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
-                                      geom_line(aes(y = avg_Gasera_CO2_flux_mgm2h)) + #, linetype = "Average CO2 Flux - Gasera")) +
+                                      geom_line(data = Master_GHG_2023_GASERA_DK, aes(x = Sampling_date, y = Gasera_CCO2_flux_mgm2h, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                      geom_line(aes(y = avg_Gasera_CCO2_flux_mgm2h)) + #, linetype = "Average CO2 Flux - Gasera")) +
                                       scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                       theme_bw() +
-                                      labs(y = expression(paste("Gasera (Dark ch.) - ", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                      labs(y = expression(paste("Gasera (Dark ch.) - C-", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                       xlab("Time") +
+                                      geom_hline(yintercept=0, color = "grey") +
+                                      geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                      annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                       scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                       theme(
                                         axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
@@ -401,7 +435,7 @@ Rates_vs_time_CO2_GASERA_DK <- ggplot(data = Avg_rates_compare_DK_GASERA, aes(co
                                         axis.text.x = element_blank(),
                                         strip.placement = "outside",
                                         legend.position="none",
-                                        plot.margin = unit(c(0, 1, 0, 0.7), "lines")) +
+                                        plot.margin = unit(c(0, 1, 0, 1), "lines")) +
                                       xlab(NULL) 
 
 print(Rates_vs_time_CO2_GASERA_DK)
@@ -409,12 +443,15 @@ print(Rates_vs_time_CO2_GASERA_DK)
 #### CO2 - Gasera Transparent (corrected) ####
 
 Rates_vs_time_CO2_GASERA_TR_cor <- ggplot(data = Avg_rates_compare_TR_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CO2_flux_mgm2h, group = Treat)) +
-                                        geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CO2_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
-                                        geom_line(aes(y = avg_Gasera_CO2_flux_mgm2h_cor)) + #, linetype = "Average CO2 Flux - Gasera")) +
+                                        geom_line(data = Master_GHG_2023_GASERA_TR, aes(x = Sampling_date, y = Gasera_CCO2_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                        geom_line(aes(y = avg_Gasera_CCO2_flux_mgm2h_cor)) + #, linetype = "Average CO2 Flux - Gasera")) +
                                         scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                         theme_bw() +
-                                        labs(y = expression(paste("Gasera (Transp. ch. & corrected) - ", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                        labs(y = expression(paste("Gasera (Transp. ch. & corrected) - C-", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                         xlab("Time") +
+                                        geom_hline(yintercept=0, color = "grey") +
+                                        geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                        annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                         scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                         theme(
                                           axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
@@ -425,7 +462,7 @@ Rates_vs_time_CO2_GASERA_TR_cor <- ggplot(data = Avg_rates_compare_TR_GASERA, ae
                                           axis.text.x = element_blank(),
                                           strip.placement = "outside",
                                           legend.position="none",
-                                          plot.margin = unit(c(0, 1, 0, 0.3), "lines")) +
+                                          plot.margin = unit(c(0, 1, 0, 0.6), "lines")) +
                                         xlab(NULL) 
 
 print(Rates_vs_time_CO2_GASERA_TR_cor)
@@ -433,12 +470,15 @@ print(Rates_vs_time_CO2_GASERA_TR_cor)
 #### CO2 - Gasera Dark (corrected) ####
 
 Rates_vs_time_CO2_GASERA_DK_cor <- ggplot(data = Avg_rates_compare_DK_GASERA, aes(color = Treat, x = Sampling_date, y = avg_Chrom_CO2_flux_mgm2h, group = Treat)) +
-                                        geom_line(data = Master_GHG_2023_GASERA_DK, aes(x = Sampling_date, y = Gasera_CO2_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
-                                        geom_line(aes(y = avg_Gasera_CO2_flux_mgm2h_cor)) + #, linetype = "Average CO2 Flux - Gasera")) +
+                                        geom_line(data = Master_GHG_2023_GASERA_DK, aes(x = Sampling_date, y = Gasera_CCO2_flux_mgm2h_cor, group = Plot), alpha = 0.5, linetype = "dotted") +
+                                        geom_line(aes(y = avg_Gasera_CCO2_flux_mgm2h_cor)) + #, linetype = "Average CO2 Flux - Gasera")) +
                                         scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                                         theme_bw() +
-                                        labs(y = expression(paste("Gasera (Dark ch. & corrected) - ", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
+                                        labs(y = expression(paste("Gasera (Dark ch. & corrected) - C-", CO[2], " flux (mg ", m^-2, " ", h^-1, ")"))) +
                                         xlab("Time") +
+                                        geom_hline(yintercept=0, color = "grey") +
+                                        geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
+                                        annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                                         scale_x_date(limits = Water_plot_2023b_limits, date_breaks = "14 day", date_labels = "%m.%d") +
                                         theme(
                                           axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
@@ -449,7 +489,7 @@ Rates_vs_time_CO2_GASERA_DK_cor <- ggplot(data = Avg_rates_compare_DK_GASERA, ae
                                           axis.text.x = element_blank(),
                                           strip.placement = "outside",
                                           legend.position="none",
-                                          plot.margin = unit(c(0, 1, 0, 0.7), "lines")) +
+                                          plot.margin = unit(c(0, 1, 0, 1), "lines")) +
                                         xlab(NULL) 
 
 print(Rates_vs_time_CO2_GASERA_DK_cor)
@@ -484,16 +524,19 @@ Master_CON_GS <- Master_GHG_2023 %>%
                   filter(Treat == "CON" & Season == "GS" & Chamber_type %in% c("TR", NA) & !is.na(Gasera_CH4_flux_mgm2h) & !is.na(Chrom_CH4_flux_corrected)) %>% 
                   group_by(Sampling_date, Treat) %>% 
                   summarize(avg_Gasera_CH4_flux_mgm2h = mean(Gasera_CH4_flux_mgm2h, na.rm = TRUE), avg_Gasera_CH4_flux_mgm2h_cor = mean(Gasera_CH4_flux_mgm2h_cor, na.rm = TRUE), 
-                            avg_Chrom_CH4_flux_mgm2h = mean(Chrom_CH4_flux_corrected, na.rm = TRUE),
+                            avg_Chrom_CH4_flux_mgm2h = mean(Chrom_CH4_flux_corrected, na.rm = TRUE), avg_Gasera_CCH4_flux_mgm2h = mean(Gasera_CCH4_flux_mgm2h, na.rm = TRUE), 
+                            avg_Gasera_CCH4_flux_mgm2h_cor = mean(Gasera_CCH4_flux_mgm2h_cor, na.rm = TRUE),
                             avg_Gasera_N2O_flux_mgm2h = mean(Gasera_N2O_flux_mgm2h, na.rm = TRUE), avg_Gasera_N2O_flux_mgm2h_cor = mean(Gasera_N2O_flux_mgm2h_cor, na.rm = TRUE),
-                            avg_Chrom_N2O_flux_mgm2h = mean(Chrom_N2O_flux_corrected, na.rm = TRUE),
+                            avg_Chrom_N2O_flux_mgm2h = mean(Chrom_N2O_flux_corrected, na.rm = TRUE), avg_Gasera_NN2O_flux_mgm2h = mean(Gasera_NN2O_flux_mgm2h, na.rm = TRUE), 
+                            avg_Gasera_NN2O_flux_mgm2h_cor = mean(Gasera_NN2O_flux_mgm2h_cor, na.rm = TRUE),
                             avg_Gasera_CO2_flux_mgm2h = mean(Gasera_CO2_flux_mgm2h, na.rm = TRUE), avg_Gasera_CO2_flux_mgm2h_cor = mean(Gasera_CO2_flux_mgm2h_cor, na.rm = TRUE),
-                            avg_Chrom_CO2_flux_mgm2h = mean(Chrom_CO2_flux_corrected, na.rm = TRUE))
+                            avg_Chrom_CO2_flux_mgm2h = mean(Chrom_CO2_flux_corrected, na.rm = TRUE), avg_Gasera_CCO2_flux_mgm2h = mean(Gasera_CCO2_flux_mgm2h, na.rm = TRUE), 
+                            avg_Gasera_CCO2_flux_mgm2h_cor = mean(Gasera_CCO2_flux_mgm2h_cor, na.rm = TRUE))
 
 ## 3.1. CH4 ####
 
 Master_CON_GS_CH4 <- Master_CON_GS %>% 
-                      select(Sampling_date, Treat, avg_Gasera_CH4_flux_mgm2h, avg_Gasera_CH4_flux_mgm2h_cor, avg_Chrom_CH4_flux_mgm2h)
+                      select(Sampling_date, Treat, avg_Gasera_CCH4_flux_mgm2h, avg_Gasera_CCH4_flux_mgm2h_cor, avg_Chrom_CH4_flux_mgm2h)
 
 Master_CON_GS_CH4 <- Master_CON_GS_CH4[order(Master_CON_GS_CH4$avg_Chrom_CH4_flux_mgm2h), ]                    
 
@@ -503,13 +546,13 @@ write_xlsx(Master_CON_GS_CH4, "outputs/CERESTRES_results/Gasera_vs_Chromat/Maste
 
 Versus_CH4_r2 <- Master_CON_GS_CH4 %>% # Calculating R-squared 
                   group_by(Treat) %>%
-                  summarize(R_squared = summary(lm(avg_Gasera_CH4_flux_mgm2h ~ avg_Chrom_CH4_flux_mgm2h))$r.squared)
+                  summarize(R_squared = summary(lm(avg_Gasera_CCH4_flux_mgm2h ~ avg_Chrom_CH4_flux_mgm2h))$r.squared)
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_methods_data_R2.pdf', width = 12)
 
-Versus_CH4 <- ggplot(data = Master_CON_GS_CH4, aes(x = avg_Chrom_CH4_flux_mgm2h, y = avg_Gasera_CH4_flux_mgm2h, group = Treat)) +
+Versus_CH4 <- ggplot(data = Master_CON_GS_CH4, aes(x = avg_Chrom_CH4_flux_mgm2h, y = avg_Gasera_CCH4_flux_mgm2h, group = Treat)) +
                       geom_point() +
-                      ggtitle(expression(paste("Gasera (TR Chamb.) vs. Chrom. rates - GS, CON, ", CH[4]))) +
+                      ggtitle(expression(paste("Gasera (TR Chamb.) vs. Chrom. rates - GS, CON, C-", CH[4]))) +
                       stat_poly_line() +
                       theme(plot.title = element_text(size = 10, face = "bold")) +
                       geom_text(data = Versus_CH4_r2, aes(label = paste("R^2 =", round(R_squared, 4)), x = Inf, y = -Inf), hjust = 1, vjust = -1)
@@ -522,13 +565,13 @@ dev.off()
 
 Versus_CH4_r2_cor <- Master_CON_GS_CH4 %>% # Calculating R-squared 
                       group_by(Treat) %>%
-                      summarize(R_squared = summary(lm(avg_Gasera_CH4_flux_mgm2h_cor ~ avg_Chrom_CH4_flux_mgm2h))$r.squared)
+                      summarize(R_squared = summary(lm(avg_Gasera_CCH4_flux_mgm2h_cor ~ avg_Chrom_CH4_flux_mgm2h))$r.squared)
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_methods_data_R2_gascor.pdf', width = 12)
 
-Versus_CH4_cor <- ggplot(data = Master_CON_GS_CH4, aes(x = avg_Chrom_CH4_flux_mgm2h, y = avg_Gasera_CH4_flux_mgm2h_cor, group = Treat)) +
+Versus_CH4_cor <- ggplot(data = Master_CON_GS_CH4, aes(x = avg_Chrom_CH4_flux_mgm2h, y = avg_Gasera_CCH4_flux_mgm2h_cor, group = Treat)) +
                       geom_point() +
-                      ggtitle(expression(paste("Gasera (TR Chamb. & corrected) vs. Chrom. rates - GS, CON, ", CH[4]))) +
+                      ggtitle(expression(paste("Gasera (TR Chamb. & corrected) vs. Chrom. rates - GS, CON, C-", CH[4]))) +
                       stat_poly_line() +
                       theme(plot.title = element_text(size = 10, face = "bold")) +
                       geom_text(data = Versus_CH4_r2_cor, aes(label = paste("R^2 =", round(R_squared, 4)), x = Inf, y = -Inf), hjust = 1, vjust = -1)
@@ -540,7 +583,7 @@ dev.off()
 ## 3.2. N2O ####
 
 Master_CON_GS_N2O <- Master_CON_GS %>% 
-                      select(Sampling_date, Treat, avg_Gasera_N2O_flux_mgm2h, avg_Gasera_N2O_flux_mgm2h_cor, avg_Chrom_N2O_flux_mgm2h)
+                      select(Sampling_date, Treat, avg_Gasera_NN2O_flux_mgm2h, avg_Gasera_NN2O_flux_mgm2h_cor, avg_Chrom_N2O_flux_mgm2h)
 
 Master_CON_GS_N2O <- Master_CON_GS_N2O[order(Master_CON_GS_N2O$avg_Chrom_N2O_flux_mgm2h), ]                    
 
@@ -550,13 +593,13 @@ write_xlsx(Master_CON_GS_N2O, "outputs/CERESTRES_results/Gasera_vs_Chromat/Maste
 
 Versus_N2O_r2 <- Master_CON_GS_N2O %>% # Calculating R-squared 
                   group_by(Treat) %>%
-                  summarize(R_squared = summary(lm(avg_Gasera_N2O_flux_mgm2h ~ avg_Chrom_N2O_flux_mgm2h))$r.squared)
+                  summarize(R_squared = summary(lm(avg_Gasera_NN2O_flux_mgm2h ~ avg_Chrom_N2O_flux_mgm2h))$r.squared)
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/N2O_methods_data_R2.pdf', width = 12)
 
-Versus_N2O <- ggplot(data = Master_CON_GS_N2O, aes(x = avg_Chrom_N2O_flux_mgm2h, y = avg_Gasera_N2O_flux_mgm2h, group = Treat)) +
+Versus_N2O <- ggplot(data = Master_CON_GS_N2O, aes(x = avg_Chrom_N2O_flux_mgm2h, y = avg_Gasera_NN2O_flux_mgm2h, group = Treat)) +
                       geom_point() +
-                      ggtitle(expression(paste("Gasera (TR Chamb.) vs. Chrom. rates - GS, CON, ", N[2], "O"))) +
+                      ggtitle(expression(paste("Gasera (TR Chamb.) vs. Chrom. rates - GS, CON, N-", N[2], "O"))) +
                       stat_poly_line() +
                       theme(plot.title = element_text(size = 10, face = "bold")) +
                       geom_text(data = Versus_N2O_r2, aes(label = paste("R^2 =", round(R_squared, 4)), x = Inf, y = -Inf), hjust = 1, vjust = -1)
@@ -569,13 +612,13 @@ dev.off()
 
 Versus_N2O_r2_cor <- Master_CON_GS_N2O %>% # Calculating R-squared 
                       group_by(Treat) %>%
-                      summarize(R_squared = summary(lm(avg_Gasera_N2O_flux_mgm2h_cor ~ avg_Chrom_N2O_flux_mgm2h))$r.squared)
+                      summarize(R_squared = summary(lm(avg_Gasera_NN2O_flux_mgm2h_cor ~ avg_Chrom_N2O_flux_mgm2h))$r.squared)
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/N2O_methods_data_R2_gascor.pdf', width = 12)
 
-Versus_N2O_cor <- ggplot(data = Master_CON_GS_N2O, aes(x = avg_Chrom_N2O_flux_mgm2h, y = avg_Gasera_N2O_flux_mgm2h_cor, group = Treat)) +
+Versus_N2O_cor <- ggplot(data = Master_CON_GS_N2O, aes(x = avg_Chrom_N2O_flux_mgm2h, y = avg_Gasera_NN2O_flux_mgm2h_cor, group = Treat)) +
                       geom_point() +
-                      ggtitle(expression(paste("Gasera (TR Chamb. & corrected) vs. Chrom. rates - GS, CON, ", N[2], "O"))) +
+                      ggtitle(expression(paste("Gasera (TR Chamb. & corrected) vs. Chrom. rates - GS, CON, N-", N[2], "O"))) +
                       stat_poly_line() +
                       theme(plot.title = element_text(size = 10, face = "bold")) +
                       geom_text(data = Versus_N2O_r2_cor, aes(label = paste("R^2 =", round(R_squared, 4)), x = Inf, y = -Inf), hjust = 1, vjust = -1)
@@ -590,16 +633,19 @@ Master_CON_GS_DK <- Master_GHG_2023 %>%
                     filter(Treat == "CON" & Season == "GS" & Chamber_type %in% c("DK", NA) & !is.na(Gasera_CH4_flux_mgm2h) & !is.na(Chrom_CH4_flux_corrected)) %>% 
                     group_by(Sampling_date, Treat) %>% 
                     summarize(avg_Gasera_CH4_flux_mgm2h = mean(Gasera_CH4_flux_mgm2h, na.rm = TRUE), avg_Gasera_CH4_flux_mgm2h_cor = mean(Gasera_CH4_flux_mgm2h_cor, na.rm = TRUE), 
-                              avg_Chrom_CH4_flux_mgm2h = mean(Chrom_CH4_flux_corrected, na.rm = TRUE),
+                              avg_Chrom_CH4_flux_mgm2h = mean(Chrom_CH4_flux_corrected, na.rm = TRUE), avg_Gasera_CCH4_flux_mgm2h = mean(Gasera_CCH4_flux_mgm2h, na.rm = TRUE), 
+                              avg_Gasera_CCH4_flux_mgm2h_cor = mean(Gasera_CCH4_flux_mgm2h_cor, na.rm = TRUE),
                               avg_Gasera_N2O_flux_mgm2h = mean(Gasera_N2O_flux_mgm2h, na.rm = TRUE), avg_Gasera_N2O_flux_mgm2h_cor = mean(Gasera_N2O_flux_mgm2h_cor, na.rm = TRUE),
-                              avg_Chrom_N2O_flux_mgm2h = mean(Chrom_N2O_flux_corrected, na.rm = TRUE),
+                              avg_Chrom_N2O_flux_mgm2h = mean(Chrom_N2O_flux_corrected, na.rm = TRUE), avg_Gasera_NN2O_flux_mgm2h = mean(Gasera_NN2O_flux_mgm2h, na.rm = TRUE), 
+                              avg_Gasera_NN2O_flux_mgm2h_cor = mean(Gasera_NN2O_flux_mgm2h_cor, na.rm = TRUE),
                               avg_Gasera_CO2_flux_mgm2h = mean(Gasera_CO2_flux_mgm2h, na.rm = TRUE), avg_Gasera_CO2_flux_mgm2h_cor = mean(Gasera_CO2_flux_mgm2h_cor, na.rm = TRUE),
-                              avg_Chrom_CO2_flux_mgm2h = mean(Chrom_CO2_flux_corrected, na.rm = TRUE))
+                              avg_Chrom_CO2_flux_mgm2h = mean(Chrom_CO2_flux_corrected, na.rm = TRUE), avg_Gasera_CCO2_flux_mgm2h = mean(Gasera_CCO2_flux_mgm2h, na.rm = TRUE), 
+                              avg_Gasera_CCO2_flux_mgm2h_cor = mean(Gasera_CCO2_flux_mgm2h_cor, na.rm = TRUE))
 
 # Transparent chambers:
 
 Master_CON_GS_CO2 <- Master_CON_GS %>% 
-                      select(Sampling_date, Treat, avg_Gasera_CO2_flux_mgm2h, avg_Gasera_CO2_flux_mgm2h_cor, avg_Chrom_CO2_flux_mgm2h)
+                      select(Sampling_date, Treat, avg_Gasera_CCO2_flux_mgm2h, avg_Gasera_CCO2_flux_mgm2h_cor, avg_Chrom_CO2_flux_mgm2h)
 
 Master_CON_GS_CO2 <- Master_CON_GS_CO2[order(Master_CON_GS_CO2$avg_Chrom_CO2_flux_mgm2h), ]                    
 
@@ -608,7 +654,7 @@ write_xlsx(Master_CON_GS_CO2, "outputs/CERESTRES_results/Gasera_vs_Chromat/Maste
 # Dark chambers:
 
 Master_CON_GS_CO2_DK <- Master_CON_GS_DK %>% 
-                        select(Sampling_date, Treat, avg_Gasera_CO2_flux_mgm2h, avg_Gasera_CO2_flux_mgm2h_cor, avg_Chrom_CO2_flux_mgm2h)
+                        select(Sampling_date, Treat, avg_Gasera_CCO2_flux_mgm2h, avg_Gasera_CCO2_flux_mgm2h_cor, avg_Chrom_CO2_flux_mgm2h)
 
 Master_CON_GS_CO2_DK <- Master_CON_GS_CO2_DK[order(Master_CON_GS_CO2_DK$avg_Chrom_CO2_flux_mgm2h), ]                    
 
@@ -618,13 +664,13 @@ write_xlsx(Master_CON_GS_CO2_DK, "outputs/CERESTRES_results/Gasera_vs_Chromat/Ma
 
 Versus_CO2_r2 <- Master_CON_GS_CO2 %>% # Calculating R-squared 
                   group_by(Treat) %>%
-                  summarize(R_squared = summary(lm(avg_Gasera_CO2_flux_mgm2h ~ avg_Chrom_CO2_flux_mgm2h))$r.squared)
+                  summarize(R_squared = summary(lm(avg_Gasera_CCO2_flux_mgm2h ~ avg_Chrom_CO2_flux_mgm2h))$r.squared)
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/CO2_methods_data_R2.pdf', width = 12)
 
-Versus_CO2 <- ggplot(data = Master_CON_GS_CO2, aes(x = avg_Chrom_CO2_flux_mgm2h, y = avg_Gasera_CO2_flux_mgm2h, group = Treat)) +
+Versus_CO2 <- ggplot(data = Master_CON_GS_CO2, aes(x = avg_Chrom_CO2_flux_mgm2h, y = avg_Gasera_CCO2_flux_mgm2h, group = Treat)) +
                       geom_point() +
-                      ggtitle(expression(paste("Gasera (TR Chamb.) vs. Chrom. rates - GS, CON, ", N[2], "O"))) +
+                      ggtitle(expression(paste("Gasera (TR Chamb.) vs. Chrom. rates - GS, CON, C-", CO[2]))) +
                       stat_poly_line() +
                       theme(plot.title = element_text(size = 10, face = "bold")) +
                       geom_text(data = Versus_CO2_r2, aes(label = paste("R^2 =", round(R_squared, 4)), x = Inf, y = -Inf), hjust = 1, vjust = -1)
@@ -637,13 +683,13 @@ dev.off()
 
 Versus_CO2_DK_r2 <- Master_CON_GS_CO2_DK %>% # Calculating R-squared 
                     group_by(Treat) %>%
-                    summarize(R_squared = summary(lm(avg_Gasera_CO2_flux_mgm2h ~ avg_Chrom_CO2_flux_mgm2h))$r.squared)
+                    summarize(R_squared = summary(lm(avg_Gasera_CCO2_flux_mgm2h ~ avg_Chrom_CO2_flux_mgm2h))$r.squared)
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/CO2_DK_methods_data_R2.pdf', width = 12)
 
-Versus_DK_CO2 <- ggplot(data = Master_CON_GS_CO2_DK, aes(x = avg_Chrom_CO2_flux_mgm2h, y = avg_Gasera_CO2_flux_mgm2h, group = Treat)) +
+Versus_DK_CO2 <- ggplot(data = Master_CON_GS_CO2_DK, aes(x = avg_Chrom_CO2_flux_mgm2h, y = avg_Gasera_CCO2_flux_mgm2h, group = Treat)) +
                       geom_point() +
-                      ggtitle(expression(paste("Gasera (TR Chamb.) vs. Chrom. rates - GS, CON, ", N[2], "O"))) +
+                      ggtitle(expression(paste("Gasera (TR Chamb.) vs. Chrom. rates - GS, CON, C-", CO[2]))) +
                       stat_poly_line() +
                       theme(plot.title = element_text(size = 10, face = "bold")) +
                       geom_text(data = Versus_CO2_DK_r2, aes(label = paste("R^2 =", round(R_squared, 4)), x = Inf, y = -Inf), hjust = 1, vjust = -1)
@@ -656,13 +702,13 @@ dev.off()
 
 Versus_CO2_r2_cor <- Master_CON_GS_CO2 %>% # Calculating R-squared 
                       group_by(Treat) %>%
-                      summarize(R_squared = summary(lm(avg_Gasera_CO2_flux_mgm2h_cor ~ avg_Chrom_CO2_flux_mgm2h))$r.squared)
+                      summarize(R_squared = summary(lm(avg_Gasera_CCO2_flux_mgm2h_cor ~ avg_Chrom_CO2_flux_mgm2h))$r.squared)
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/CO2_methods_data_R2_gascor.pdf', width = 12)
 
-Versus_CO2_cor <- ggplot(data = Master_CON_GS_CO2, aes(x = avg_Chrom_CO2_flux_mgm2h, y = avg_Gasera_CO2_flux_mgm2h_cor, group = Treat)) +
+Versus_CO2_cor <- ggplot(data = Master_CON_GS_CO2, aes(x = avg_Chrom_CO2_flux_mgm2h, y = avg_Gasera_CCO2_flux_mgm2h_cor, group = Treat)) +
                           geom_point() +
-                          ggtitle(expression(paste("Gasera (TR Chamb. & corrected) vs. Chrom. rates - GS, CON, ", N[2], "O"))) +
+                          ggtitle(expression(paste("Gasera (TR Chamb. & corrected) vs. Chrom. rates - GS, CON, C-",CO[2]))) +
                           stat_poly_line() +
                           theme(plot.title = element_text(size = 10, face = "bold")) +
                           geom_text(data = Versus_CO2_r2_cor, aes(label = paste("R^2 =", round(R_squared, 4)), x = Inf, y = -Inf), hjust = 1, vjust = -1)
@@ -675,13 +721,13 @@ dev.off()
 
 Versus_CO2_DK_r2_cor <- Master_CON_GS_CO2_DK %>% # Calculating R-squared 
                         group_by(Treat) %>%
-                        summarize(R_squared = summary(lm(avg_Gasera_CO2_flux_mgm2h_cor ~ avg_Chrom_CO2_flux_mgm2h))$r.squared)
+                        summarize(R_squared = summary(lm(avg_Gasera_CCO2_flux_mgm2h_cor ~ avg_Chrom_CO2_flux_mgm2h))$r.squared)
 
 pdf('outputs/CERESTRES_results/Gasera_vs_Chromat/CO2_DK_methods_data_R2_gascor.pdf', width = 12)
 
-Versus_DK_CO2_cor <- ggplot(data = Master_CON_GS_CO2_DK, aes(x = avg_Chrom_CO2_flux_mgm2h, y = avg_Gasera_CO2_flux_mgm2h_cor, group = Treat)) +
+Versus_DK_CO2_cor <- ggplot(data = Master_CON_GS_CO2_DK, aes(x = avg_Chrom_CO2_flux_mgm2h, y = avg_Gasera_CCO2_flux_mgm2h_cor, group = Treat)) +
                             geom_point() +
-                            ggtitle(expression(paste("Gasera (TR Chamb. & corrected) vs. Chrom. rates - GS, CON, ", N[2], "O"))) +
+                            ggtitle(expression(paste("Gasera (TR Chamb. & corrected) vs. Chrom. rates - GS, CON, C-", CO[2]))) +
                             stat_poly_line() +
                             theme(plot.title = element_text(size = 10, face = "bold")) +
                             geom_text(data = Versus_CO2_DK_r2_cor, aes(label = paste("R^2 =", round(R_squared, 4)), x = Inf, y = -Inf), hjust = 1, vjust = -1)

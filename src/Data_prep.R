@@ -90,13 +90,6 @@ colnames(Master_GHG_2023)[colnames(Master_GHG_2023) == "CH4_flux_mgm2h"] <- "Gas
 colnames(Master_GHG_2023)[colnames(Master_GHG_2023) == "N2O_flux_mgm2h"] <- "Gasera_N2O_flux_mgm2h" 
 colnames(Master_GHG_2023)[colnames(Master_GHG_2023) == "CO2_flux_mgm2h"] <- "Gasera_CO2_flux_mgm2h" 
 
-
-
-
-
-
-
-
 ## 1.1. Gasera fluxes transformation to CCH4, NN2O and CCO2 ####
 
 Master_GHG_2023 <- Master_GHG_2023 %>% 
