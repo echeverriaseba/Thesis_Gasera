@@ -286,6 +286,9 @@ physchem_avg_2023 <- physchem_avg_2023 %>%
                       select(Sampling_date, Sampling, Plot, Treat, Rep, Conduct_microS_cm, Temp_10_cm, pH_soil, Redox_pot, Water_temp, O2_percent, O2_mg_l, Salinity, pH_water, sampdateID, siteID) %>%  # Re-orders.
                       mutate(across(c(pH_soil, Water_temp, O2_percent, O2_mg_l, Salinity, pH_water), ~ifelse(is.nan(.), NA, .))) # Replaces NaN for NA values.
 
+write_xlsx(physchem_avg_2023, "outputs/CERESTRES_results/physchem_avg_2023.xlsx") # Excel file with physchem_avg_2023
+save(physchem_avg_2023, file = "outputs/CERESTRES_results/physchem_avg_20233.RData") # Saves the physchem_avg_2023 dataframe to open with other R projects/scripts
+
 # 5. Yield ####
 
 Yield_2023 <- read.csv("data/Yield_2023.csv", fileEncoding="latin1", na.strings=c("","NA")) %>% 
