@@ -46,6 +46,7 @@ print(Water_plot_2023b) # Water level all treats
 
 dev.off()
 
+ggsave("outputs/CERESTRES_results/Water_plot_2023c.pdf", plot = Water_plot_2023b ,width = 20, height = 5)   
 Water_plot_2023b_limits <- as.Date(layer_scales(Water_plot_2023b)$x$get_limits()) # extracting limits from plot Water_plot_2023b to use in Gasera and Chrom plots, so their x axis coincide when arranging
 
 # 2. Plotting Emissions ####
