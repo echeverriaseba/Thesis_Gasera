@@ -5,6 +5,10 @@ library(dplyr)
 library(vioplot)
 library(ggplot2)
 library(vegan)
+library(usdm) # for vif()
+library(Hmisc) # for varclus()
+library(dendextend) # solves issues with as.dendrogram()
+library(RColorBrewer) # for brewer.pal()
 
 # 1. Research question and hypotheses ####
 
@@ -82,7 +86,6 @@ for (i in vars) {stats <- boxplot.stats(Master_GHG_2023_phys_noNA[[i]]) # Get th
 
 cor_matrix_GHG <- Master_GHG_2023_phys_noNA[,vars] %>% 
                   na.omit
-
 corr_GHG <- round(cor(cor_matrix_GHG, method =  "spearman"), 1)
 
 pdf("outputs/CERESTRES_results/Chromat_results/Corr_plot_GHG.pdf", width = 11)
@@ -99,7 +102,73 @@ dev.off()
 
 ### 2.3.1. Variance Inflation ####
 
+# Method: "One strategy for addressing this problem is to sequentially drop the covariate with the highest VIF, recalculate the VIFs and repeat this process
+# until all VIFs are smaller than a pre- selected threshold" (Zuur et al, 2010)
+# We exclude variables with VIF > 5 stepwise, starting with the variable that has the highest VIF
+# A VIF > 8 is applied in Feld et al., 2016. We lower the threshold to 5.
 
+sel_vars1 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_initial", "Env_temp_final",  "Conduct_microS_cm",
+               "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_percent", "O2_mg_l",  "Salinity", "pH_water")
+sel_data1 <- (Master_GHG_2023_phys_noNA[, sel_vars1])
+usdm::vifstep(sel_data1, th = 5) 
+
+# vifstep: calculates VIF for all variables, excludes the one with the highest VIF (if it is greater than the threshold), 
+# repeat the procedure until no variables with a VIF greater than th remains.
+# Result: 4 variables from the 14 input variables have collinearity problem: O2_percent Env_temp_initial Temp_soil Salinity
+
+# Data frame after removing coviariates after VIF analysis:  
+
+sel_vars2 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+               "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_mg_l",  "pH_water")
+sel_data2 <- (Master_GHG_2023_phys_noNA[, sel_vars2])
+
+### 2.3.2. Dendrogram with independent variables (covariates) ####
+
+# Dend 1: Considering all variables (without VIF removal)
+# Variable clustering:
+
+similarity="pearson"
+vclust_1 <- varclus(x=as.matrix(sel_data1),
+                    similarity=similarity,
+                    type="data.matrix", 
+                    method="complete",
+                    na.action=na.retain,trans="abs")
+dend_1 <- as.dendrogram(vclust_1)
+
+# Random colors and plot dendrogram:
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector <- brewer.pal(n=8,"Paired")
+dend_1 <- color_labels(dend_1, h=1-0.7,col=col_vector)
+dend_1 <- color_branches(dend_1, h=1-0.7,col=col_vector)
+
+cairo_pdf("outputs/CERESTRES_results/Chromat_results/Dend_covars_1.pdf",width=7,height=4)
+par(mar=c(5,2,4,17)+0.1)
+plot(dend_1,horiz = TRUE,xlab="",axes = FALSE)
+axis(1,at=1-seq(0,1,0.2),labels=seq(0,1,0.2))
+dev.off()
+
+# Dend 2: Considering only covariates after VIF analysis and removal
+# Variable clustering:
+
+similarity="pearson"
+vclust_2 <- varclus(x=as.matrix(sel_data2),
+                    similarity=similarity,
+                    type="data.matrix", 
+                    method="complete",
+                    na.action=na.retain,trans="abs")
+dend_2 <- as.dendrogram(vclust_2)
+
+# Random colors and plot dendrogram:
+qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
+col_vector <- brewer.pal(n=8,"Paired")
+dend_2 <- color_labels(dend_2, h=1-0.7,col=col_vector)
+dend_2 <- color_branches(dend_2, h=1-0.7,col=col_vector)
+
+cairo_pdf("outputs/CERESTRES_results/Chromat_results/Dend_covars_2.pdf",width=7,height=4)
+par(mar=c(5,2,4,17)+0.1)
+plot(dend_2,horiz = TRUE,xlab="",axes = FALSE)
+axis(1,at=1-seq(0,1,0.2),labels=seq(0,1,0.2))
+dev.off()
 
 ## 2.4. Are there lots of zeros in the data? ####
 
