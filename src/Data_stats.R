@@ -110,16 +110,16 @@ dev.off()
 sel_vars1 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_initial", "Env_temp_final",  "Conduct_microS_cm",
                "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_percent", "O2_mg_l",  "Salinity", "pH_water")
 sel_data1 <- (Master_GHG_2023_phys_noNA[, sel_vars1])
-usdm::vifstep(sel_data1, th = 5) 
+usdm::vifstep(sel_data1, th = 5)
 
 # vifstep: calculates VIF for all variables, excludes the one with the highest VIF (if it is greater than the threshold), 
 # repeat the procedure until no variables with a VIF greater than th remains.
-# Result: 4 variables from the 14 input variables have collinearity problem: O2_percent Env_temp_initial Temp_soil Salinity
+# Result: 2 variables from the 14 input variables have collinearity problem: O2_percent Env_temp_initial
 
 # Data frame after removing coviariates after VIF analysis:  
 
-sel_vars2 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
-               "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_mg_l",  "pH_water")
+sel_vars2 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+               "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_mg_l",  "Salinity", "pH_water")
 sel_data2 <- (Master_GHG_2023_phys_noNA[, sel_vars2])
 
 ### 2.3.2. Dendrogram with independent variables (covariates) ####
@@ -141,17 +141,23 @@ col_vector <- brewer.pal(n=8,"Paired")
 dend_1 <- color_labels(dend_1, h=1-0.7,col=col_vector)
 dend_1 <- color_branches(dend_1, h=1-0.7,col=col_vector)
 
-cairo_pdf("outputs/CERESTRES_results/Chromat_results/Dend_covars_1.pdf",width=7,height=4)
+cairo_pdf("outputs/CERESTRES_results/Chromat_results/Covars_dend_1.pdf",width=7,height=4)
 par(mar=c(5,2,4,17)+0.1)
 plot(dend_1,horiz = TRUE,xlab="",axes = FALSE)
 axis(1,at=1-seq(0,1,0.2),labels=seq(0,1,0.2))
 dev.off()
 
+# From this complete dendrogram, collinearity is also identified for Temp_soil and Temp_10_cm. We decide removing Temp_soil due to less data available.
+
+sel_vars3 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+               "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_mg_l",  "Salinity", "pH_water")
+sel_data3 <- (Master_GHG_2023_phys_noNA[, sel_vars3])
+
 # Dend 2: Considering only covariates after VIF analysis and removal
 # Variable clustering:
 
 similarity="pearson"
-vclust_2 <- varclus(x=as.matrix(sel_data2),
+vclust_2 <- varclus(x=as.matrix(sel_data3),
                     similarity=similarity,
                     type="data.matrix", 
                     method="complete",
@@ -164,20 +170,71 @@ col_vector <- brewer.pal(n=8,"Paired")
 dend_2 <- color_labels(dend_2, h=1-0.7,col=col_vector)
 dend_2 <- color_branches(dend_2, h=1-0.7,col=col_vector)
 
-cairo_pdf("outputs/CERESTRES_results/Chromat_results/Dend_covars_2.pdf",width=7,height=4)
+cairo_pdf("outputs/CERESTRES_results/Chromat_results/Covars_dend_2.pdf",width=7,height=4)
 par(mar=c(5,2,4,17)+0.1)
 plot(dend_2,horiz = TRUE,xlab="",axes = FALSE)
 axis(1,at=1-seq(0,1,0.2),labels=seq(0,1,0.2))
 dev.off()
 
-## 2.4. Are there lots of zeros in the data? ####
+## 2.4. Relationships between Y and X variables?
 
+# sel_vars3 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+# "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_mg_l",  "Salinity", "pH_water")
 
+custom_ylabs <- c( # Defining specific ylabs for scatterplots
+                    expression("Water level (cm)"),
+                    expression("Rice cover (%)"),
+                    expression("Air temperature (ºC)"),
+                    expression(paste("Soil electrical conductivity (μS cm"^"-1",")")),
+                    expression("Soil temperature at 10 cm (ºC)"),
+                    expression("Soil pH"),
+                    expression("Redox potential"),
+                    expression("Water temperature (ºC)"),
+                    expression(paste("Oxigen (mg l"^"-1",")")),
+                    expression(paste("Salinity (mg l"^"-1",")")),
+                    expression("Water pH")
+                    )
 
+# Scaterplots: GHG emissions vs covariates for both seasons: According to Zuur et al., 2010.
 
+sel_vars4 <-  c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+                "Temp_10_cm", "pH_soil", "Redox_pot")
 
+seasons <- unique(Master_GHG_2023_phys_noNA$Season)
+GHG <- c("Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected")
 
+pdf("outputs/CERESTRES_results/Chromat_results/Covars_scat.pdf", width = 20, height = 10)
+par(mfrow = c(3, 6), mar = c(2, 6, 2, 0)) # Adjust the margin to reduce space
 
+for (q in seq_along(GHG)) { # Loop through each GHG ("Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected")
+      Gas <- GHG[q]
+
+      for (p in seq_along(unique(Master_GHG_2023_phys_noNA$Season))) { # Loop through each season (GS and FS)
+            sea <- seasons[p]
+      
+            if (sea == "GS") {
+        
+                for (i in seq_along(sel_vars3)) { # Loop through each independent variable and create a scatterplot with custom y-axis label
+                                    var <- sel_vars3[i]
+                                    season_data <- subset(Master_GHG_2023_phys_noNA, Season == sea)
+                                    plot(season_data[[Gas]], season_data[[var]], 
+                                      ylab = "",
+                                      main =  paste("GS -", Gas))
+                                    mtext(custom_ylabs[i], side = 2, line = 3)}
+        
+      } else {
+        
+                for (h in seq_along(sel_vars4)) { # Loop through each independent variable and create a scatterplot with custom y-axis label
+                                    var <- sel_vars4[h]
+                                    season_data <- subset(Master_GHG_2023_phys_noNA, Season == sea)
+                                    plot(season_data[[Gas]], season_data[[var]], 
+                                         ylab = "",
+                                         main =  paste("FS -", Gas))
+                                    mtext(custom_ylabs[h], side = 2, line = 3)
+}}}}
+
+par(mfrow = c(1, 1))
+dev.off()
 
 # PCA:
 
