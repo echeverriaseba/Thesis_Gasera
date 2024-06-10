@@ -182,7 +182,7 @@ plot(dend_2,horiz = TRUE,xlab="",axes = FALSE)
 axis(1,at=1-seq(0,1,0.2),labels=seq(0,1,0.2))
 dev.off()
 
-## 2.4. Relationships between Y and X variables?
+## 2.4. Relationships between Y and X variables? ####
 
 # sel_vars2 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
 # "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_mg_l",  "Salinity", "pH_water")
