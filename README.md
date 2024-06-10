@@ -31,11 +31,11 @@ Here the main scripts used for data preparation, plotting and statistical analys
 ### Data_stats: Data analysis
 1. Research question and hypotheses
 2. Data exploration according to: A protocol for data exploration to avoid common statistical problems - Zuur et al., 2010.
-   2.1. Check for outliers.
-   2.2. Independence of explanatory variables: collinearity and variance inflation.
-    2.2.1. Correlation plot
-    2.2.2. Variance Inflation
-    2.2.3. Dendrogram with independent variables (covariates)
-  2.3. Relationships between Y and X variables?
+- 2.1. Check for outliers.
+- 2.2. Independence of explanatory variables: collinearity and variance inflation.
+    - 2.2.1. Correlation plot
+    - 2.2.2. Variance Inflation
+    - 2.2.3. Dendrogram with independent variables (covariates)
+- 2.3. Relationships between Y and X variables?
  3. Statistical Modeling
-  3.1. Initial model and link functio
+- 3.1. Initial model and link functio
