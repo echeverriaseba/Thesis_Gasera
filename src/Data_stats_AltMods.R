@@ -8,7 +8,6 @@ library(vegan)
 library(usdm) # for vif()
 library(Hmisc) # for varclus()
 library(dendextend) # solves issues with as.dendrogram()
-# install.packages("glmmTMB")
 library(glmmTMB) # for glmmTMB()
 library(emmeans)
 library(DHARMa)
@@ -40,8 +39,8 @@ Master_GHG_2023_phys_noNA <- subset(Master_GHG_2023_phys, is.na(Chrom_CH4_flux_c
 
 # Creating a "Sampling" column that assigns a number to each unique Sampling_date. This way we can have "Sampling" as a model variable. 
 Master_GHG_2023_phys_noNA <- Master_GHG_2023_phys_noNA %>%
-                 arrange(Sampling_date) %>%
-                 mutate(Sampling = match(Sampling_date, unique(Sampling_date)))
+  arrange(Sampling_date) %>%
+  mutate(Sampling = match(Sampling_date, unique(Sampling_date)))
 
 ## 2.1. Check for outliers ####
 
@@ -52,18 +51,18 @@ vars <- c("Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected",
 
 # Exploratory plots: histogram, boxplot, vioplot  
 for (i in vars) {hist(Master_GHG_2023_phys_noNA[,i], main = i)
-                 boxplot(Master_GHG_2023_phys_noNA[,i], main = i)
-                 vioplot(Master_GHG_2023_phys_noNA[,i], main = i)
-                 } 
-  
+  boxplot(Master_GHG_2023_phys_noNA[,i], main = i)
+  vioplot(Master_GHG_2023_phys_noNA[,i], main = i)
+} 
+
 # Identifying outliers looping through each variable
 for (i in vars) {stats <- boxplot.stats(Master_GHG_2023_phys_noNA[[i]]) # Get the boxplot statistics
-                 outliers <- stats$out # Extract outliers
-                 cat("Variable:", i, "\n") # Print the outliers for each variable
-                  
-                 if (length(outliers) > 0) {cat("Outliers:", outliers, "\n\n")} 
-                 else {cat("No outliers found.\n\n")}
-                 }
+outliers <- stats$out # Extract outliers
+cat("Variable:", i, "\n") # Print the outliers for each variable
+
+if (length(outliers) > 0) {cat("Outliers:", outliers, "\n\n")} 
+else {cat("No outliers found.\n\n")}
+}
 
 # Deal with identified outliers:
 # Salinity: min (1 value, asked Raul) / O2_mg_l: max (1 value, 126 should be a 12.6, changed in data sheet) / 
@@ -81,11 +80,6 @@ for (i in vars) {stats <- boxplot.stats(Master_GHG_2023_phys_noNA[[i]]) # Get th
 
 ## 2.3. Independence of explanatory variables: collinearity and variance inflation ####
 
-# Check for normal distribution of dependent variables:
-
-shapiro.test(Master_GHG_2023_phys_noNA$Chrom_N2O_flux_corrected) # CH4 emissions not normally distributed
-shapiro.test(Master_GHG_2023_phys_noNA$Chrom_CH4_flux_corrected) # N2O emissions not normally distributed
-
 # Notes:
 # - Usually we would test residuals' homogeneity of variance (homoscedasticity) and data's normal distribution but we will be fitting GLMMs to test the effect of
 #   GS Treat on GS and FS GHG emissions, plus the effect of physchem. parameterrs as covariates and account for random factors. 
@@ -97,19 +91,19 @@ shapiro.test(Master_GHG_2023_phys_noNA$Chrom_CH4_flux_corrected) # N2O emissions
 ### 2.3.1. Correlation plot ####
 
 cor_matrix_GHG <- Master_GHG_2023_phys_noNA[,vars] %>% 
-                  na.omit
+  na.omit
 corr_GHG <- round(cor(cor_matrix_GHG, method =  "spearman"), 1)
 
 pdf("outputs/CERESTRES_results/Chromat_results/Corr_plot_GHG.pdf", width = 11)
 corrplot::corrplot.mixed(corr_GHG,
-                          order = 'hclust',
-                          addrect = 2,
-                          tl.col = "black", # Set text color to black
-                          tl.srt = 45,      # Rotate text by 45 degrees
-                          number.cex = 0.7, # Determine size of text for correlation values
-                          mar = c(1, 1, 1, 1), # Adjusting the margin
-                          tl.pos = "lt"     # Set text label position to "left-top"
-                        )
+                         order = 'hclust',
+                         addrect = 2,
+                         tl.col = "black", # Set text color to black
+                         tl.srt = 45,      # Rotate text by 45 degrees
+                         number.cex = 0.7, # Determine size of text for correlation values
+                         mar = c(1, 1, 1, 1), # Adjusting the margin
+                         tl.pos = "lt"     # Set text label position to "left-top"
+)
 dev.off()
 
 ### 2.3.1. Variance Inflation ####
@@ -159,11 +153,15 @@ plot(dend_1,horiz = TRUE,xlab="",axes = FALSE)
 axis(1,at=1-seq(0,1,0.2),labels=seq(0,1,0.2))
 dev.off()
 
+sel_vars3 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+               "pH_soil", "Redox_pot", "O2_mg_l",  "Salinity")
+sel_data3 <- (Master_GHG_2023_phys_noNA[, sel_vars3])
+
 # Dend 2: Considering only covariates after VIF analysis and removal
 # Variable clustering:
 
 similarity="pearson"
-vclust_2 <- varclus(x=as.matrix(sel_data2),
+vclust_2 <- varclus(x=as.matrix(sel_data3),
                     similarity=similarity,
                     type="data.matrix", 
                     method="complete",
@@ -184,30 +182,30 @@ dev.off()
 
 ## 2.4. Relationships between Y and X variables?
 
-# sel_vars2 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+# sel_vars3 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
 # "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_mg_l",  "Salinity", "pH_water")
 
 custom_ylabs <- c( # Defining specific ylabs for scatterplots
-                    expression("Water level (cm)"),
-                    expression("Rice cover (%)"),
-                    expression("Air temperature (ºC)"),
-                    expression(paste("Soil electrical conductivity (μS cm"^"-1",")")),
-                    expression("Soil temperature at 10 cm (ºC)"),
-                    expression("Soil pH"),
-                    expression("Redox potential"),
-                    expression("Water temperature (ºC)"),
-                    expression(paste("Oxigen (mg l"^"-1",")")),
-                    expression(paste("Salinity (mg l"^"-1",")")),
-                    expression("Water pH")
-                    )
+  expression("Water level (cm)"),
+  expression("Rice cover (%)"),
+  expression("Air temperature (ºC)"),
+  expression(paste("Soil electrical conductivity (μS cm"^"-1",")")),
+  expression("Soil temperature at 10 cm (ºC)"),
+  expression("Soil pH"),
+  expression("Redox potential"),
+  expression("Water temperature (ºC)"),
+  expression(paste("Oxigen (mg l"^"-1",")")),
+  expression(paste("Salinity (mg l"^"-1",")")),
+  expression("Water pH")
+)
 
 custom_xlabs <- c( # Defining specific xlabs for scatterplots
-                    expression(paste(CH[4], " flux (mg ", m^-2, " ", h^-1, ")")),
-                    expression(paste(N[2], "O flux (mg ", m^-2, " ", h^-1, ")")))
+  expression(paste(CH[4], " flux (mg ", m^-2, " ", h^-1, ")")),
+  expression(paste(N[2], "O flux (mg ", m^-2, " ", h^-1, ")")))
 
 custom_main <- c( # Defining specific xlabs for scatterplots
-                    expression("Growing Season"),
-                    expression("Fallow Season"))
+  expression("Growing Season"),
+  expression("Fallow Season"))
 
 # Scaterplots: GHG emissions vs covariates for both seasons: According to Zuur et al., 2010.
 
@@ -220,36 +218,38 @@ pdf("outputs/CERESTRES_results/Chromat_results/Covars_scat.pdf", width = 20, hei
 par(mfrow = c(3, 6), mar = c(5, 6, 2, 0)) # Adjust the margin to reduce space
 
 for (q in seq_along(GHG)) { # Loop through each GHG ("Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected")
-      Gas <- GHG[q]
-
-      for (p in seq_along(unique(Master_GHG_2023_phys_noNA$Season))) { # Loop through each season (GS and FS)
-            sea <- seasons[p]
+  Gas <- GHG[q]
+  
+  for (p in seq_along(unique(Master_GHG_2023_phys_noNA$Season))) { # Loop through each season (GS and FS)
+    sea <- seasons[p]
+    
+    if (sea == "GS") { # This if else separates GS and FS as they don't share same ind vars, during FS only soil physchem parameters were recorded.
       
-            if (sea == "GS") { # This if else separates GS and FS as they don't share same ind vars, during FS only soil physchem parameters were recorded.
-        
-                for (i in seq_along(sel_vars2)) { # Loop through each independent variable and create a scatterplot with custom y-axis label
-                                    var <- sel_vars2[i]
-                                    season_data <- subset(Master_GHG_2023_phys_noNA, Season == sea)
-                                    plot(season_data[[Gas]], season_data[[var]], 
-                                      ylab = "",
-                                      xlab =  custom_xlabs[q],
-                                      main = custom_main[p])
-                                    mtext(custom_ylabs[i], side = 2, line = 3)}
-        
-      } else { 
-        
-                for (h in seq_along(sel_vars4)) { # Loop through each independent variable and create a scatterplot with custom y-axis label
-                                    var <- sel_vars4[h]
-                                    season_data <- subset(Master_GHG_2023_phys_noNA, Season == sea)
-                                    plot(season_data[[Gas]], season_data[[var]], 
-                                         ylab = "",
-                                         xlab = custom_xlabs[q],
-                                         main = custom_main[p])
-                                    mtext(custom_ylabs[h], side = 2, line = 3)
-}}}}
+      for (i in seq_along(sel_vars3)) { # Loop through each independent variable and create a scatterplot with custom y-axis label
+        var <- sel_vars3[i]
+        season_data <- subset(Master_GHG_2023_phys_noNA, Season == sea)
+        plot(season_data[[Gas]], season_data[[var]], 
+             ylab = "",
+             xlab =  custom_xlabs[q],
+             main = custom_main[p])
+        mtext(custom_ylabs[i], side = 2, line = 3)}
+      
+    } else { 
+      
+      for (h in seq_along(sel_vars4)) { # Loop through each independent variable and create a scatterplot with custom y-axis label
+        var <- sel_vars4[h]
+        season_data <- subset(Master_GHG_2023_phys_noNA, Season == sea)
+        plot(season_data[[Gas]], season_data[[var]], 
+             ylab = "",
+             xlab = custom_xlabs[q],
+             main = custom_main[p])
+        mtext(custom_ylabs[h], side = 2, line = 3)
+      }}}}
 
 par(mfrow = c(1, 1))
 dev.off()
+
+
 
 
 
@@ -258,9 +258,12 @@ dev.off()
 # Conduct a PCA to explore variability associated to Season and water management effect on "Chrom_CH4_flux_corrected" and
 # "Chrom_N2O_flux_corrected" (use Maite's Neglecting as a reference)
 
-# PCA <- rda(Nut, scale = TRUE) # Correspondence Analysis and Redundancy Analysis. Scale = TRUE: Defines Correlations instead of Covariance.
-# 
-# biplot(PCA) # prints the PCA as a plot. Plots in red variables and in black the sites.
+PCA <- rda(Nut, scale = TRUE) # Correspondence Analysis and Redundancy Analysis. Scale = TRUE: Defines Correlations instead of Covariance.
+
+biplot(PCA) # prints the PCA as a plot. Plots in red variables and in black the sites.
+
+
+
 
 
 
@@ -275,68 +278,113 @@ pdf("outputs/CERESTRES_results/Chromat_results/Sampling_resp.pdf", width = 20, h
 par(mfrow = c(2, 2), mar = c(5, 5, 2, 0)) # Adjust the margin to reduce space
 
 for (q in seq_along(GHG)) { # Loop through each GHG ("Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected")
-      Gas <- GHG[q]
+  Gas <- GHG[q]
   
-      for (p in seq_along(unique(Master_GHG_2023_phys_noNA$Season))) { # Loop through each season (GS and FS)
-            sea <- seasons[p]
-            season_data <- subset(Master_GHG_2023_phys_noNA, Season == sea)
-            plot(season_data$Sampling, season_data[[Gas]], 
-                 ylab = custom_xlabs[q],
-                 xlab = "Sampling",
-                 main = custom_main[p])
-            
-      }}
+  for (p in seq_along(unique(Master_GHG_2023_phys_noNA$Season))) { # Loop through each season (GS and FS)
+    sea <- seasons[p]
+    season_data <- subset(Master_GHG_2023_phys_noNA, Season == sea)
+    plot(season_data$Sampling, season_data[[Gas]], 
+         ylab = custom_xlabs[q],
+         xlab = "Sampling",
+         main = custom_main[p])
+    
+  }}
 
 par(mfrow = c(1, 1))
 dev.off()
 
 # From these plots a quadratic relation between flux and Sampling can only be observed for CH4 during GS, but not for FS and not for N2O across both seasons.
-# A multi-modal relation can be observed for CH4, considering the complete season.
+# The quadratic term of Sampling is, therefore, not to be consider further in models.
+
+GS_data <- subset(Master_GHG_2023_phys_noNA, Season == "GS")
+FS_data <- subset(Master_GHG_2023_phys_noNA, Season == "PH")
 
 ## 3.1. Initial model and link function  ####
- 
-Master_GHG_2023_phys_noNA$Treat <- as.factor(Master_GHG_2023_phys_noNA$Treat)
-Master_GHG_2023_phys_noNA$Season <- as.factor(Master_GHG_2023_phys_noNA$Season)
-Master_GHG_2023_phys_noNA$Sampling <- as.factor(Master_GHG_2023_phys_noNA$Sampling)
-Master_GHG_2023_phys_noNA$Rep <- as.factor(Master_GHG_2023_phys_noNA$Rep)
 
 # Family: Gaussian
 # Interacting independent variables: Treat*Sampling
-# Additional independent variables: Previously selected sel_vars2 for GS / Redox_pot for FS
+# Additional independent variables: Previously selected sel_vars3 for GS / Redox_pot for FS
 # Random effect: Rep
 
-# CH4: 
+# Note: For FS models only Redox_pot was left as covariate due to convergence problem: 
+# In fitTMB(TMBStruc) :
+# Model convergence problem; non-positive-definite Hessian matrix. See vignette('troubleshooting') - Mainly due to lack of data.
+# Redox potential was left as it is a main emissions driver - According to: Neglecting the fallow season can significantly underestimate annual 
+# methane emissions in Mediterranean rice fields (Martínez-Eixarch et al., 2018)
 
-# Complete model:
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + Redox_pot + O2_mg_l + Salinity + (1|Rep), family = "gaussian")
-
-# Simplified versions without <2 factors error:
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Season + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Sampling + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat + Sampling + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + (1|Rep), family = "gaussian") 
-
-# Simplified versions with <2 factors error:
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + O2_mg_l + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + Salinity + (1|Rep), family = "gaussian")
-
-# Simplified versions with Season and Sampling error:
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Season + Sampling + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ I(Sampling^2) + (1|Rep), family = "gaussian")
+# CH4 - GS:
+CH4_mod_GS_tot <- glmmTMB(data = GS_data, Chrom_CH4_flux_corrected ~ Treat*Sampling + Water_level_corr + Rice_cover_prop + Env_temp_final + 
+                            Conduct_microS_cm + pH_soil + Redox_pot + O2_mg_l + Salinity + (1|Rep), family = "gaussian")
 
 # Model diagnostics:
-DHARMa::simulateResiduals(CH4_mod_tot, plot = T)
-summary(CH4_mod_tot)
-car::Anova(CH4_mod_tot)
-performance::r2(CH4_mod_tot)
-performance::check_collinearity(CH4_mod_tot)
-performance::check_singularity(CH4_mod_tot)
-visreg(CH4_mod_tot, scale="response") # Plotting conditional residuals
+DHARMa::simulateResiduals(CH4_mod_GS_tot, plot = T)
+summary(CH4_mod_GS_tot)
+car::Anova(CH4_mod_GS_tot)
+performance::r2(CH4_mod_GS_tot)
+performance::check_collinearity(CH4_mod_GS_tot)
+performance::check_singularity(CH4_mod_GS_tot)
+visreg(CH4_mod_GS_tot, scale="response") # Plotting conditional residuals
+
+# CH4 - FS:
+CH4_mod_FS_tot <-  glmmTMB(data = FS_data, Chrom_CH4_flux_corrected ~ Treat*Sampling + Redox_pot + (1|Rep), family = "gaussian")
+
+# Model diagnostics:
+DHARMa::simulateResiduals(CH4_mod_FS_tot, plot = T)
+summary(CH4_mod_FS_tot)
+car::Anova(CH4_mod_FS_tot)
+performance::r2(CH4_mod_FS_tot)
+performance::check_collinearity(CH4_mod_FS_tot)
+performance::check_singularity(CH4_mod_FS_tot)
+visreg(CH4_mod_FS_tot, scale="response") # Plotting conditional residuals
+
+# N2O - GS:
+N2O_mod_GS_tot <- glmmTMB(data = GS_data, Chrom_N2O_flux_corrected ~ Treat*Sampling + Water_level_corr + Rice_cover_prop + Env_temp_final + 
+                            Conduct_microS_cm + pH_soil + Redox_pot + O2_mg_l + Salinity + (1|Rep), family = "gaussian")
+
+# Model diagnostics:
+DHARMa::simulateResiduals(N2O_mod_GS_tot, plot = T)
+summary(N2O_mod_GS_tot)
+car::Anova(N2O_mod_GS_tot)
+performance::r2(N2O_mod_GS_tot)
+performance::check_collinearity(N2O_mod_GS_tot)
+performance::check_singularity(N2O_mod_GS_tot)
+visreg(N2O_mod_GS_tot, scale="response") # Plotting conditional residuals
+
+# N2O - FS:
+N2O_mod_FS_tot <- glmmTMB(data = FS_data, Chrom_N2O_flux_corrected ~ Treat*Sampling + Redox_pot + (1|Rep), family = "gaussian")
+
+# Model diagnostics:
+DHARMa::simulateResiduals(N2O_mod_FS_tot, plot = T)
+summary(N2O_mod_FS_tot)
+car::Anova(N2O_mod_FS_tot)
+performance::r2(N2O_mod_FS_tot)
+performance::check_collinearity(N2O_mod_FS_tot)
+performance::check_singularity(N2O_mod_FS_tot)
+visreg(N2O_mod_FS_tot, scale="response") # Plotting conditional residuals
+
+
+
+
+
+
+
+
+# CH4 - FS:
+CH4_mod_FS_tot <-  glmmTMB(data = FS_data, Chrom_CH4_flux_corrected ~ Treat*Sampling + Redox_pot, family = "gaussian")
+
+# Model diagnostics:
+DHARMa::simulateResiduals(CH4_mod_FS_tot, plot = T)
+summary(CH4_mod_FS_tot)
+car::Anova(CH4_mod_FS_tot)
+performance::r2(CH4_mod_FS_tot)
+performance::check_collinearity(CH4_mod_FS_tot)
+performance::check_singularity(CH4_mod_FS_tot)
+visreg(CH4_mod_FS_tot, scale="response") # Plotting conditional residuals
+
+
+
+
+
+
+## 3.2. Multi-model inference and model averaging  ####
 
