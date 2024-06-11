@@ -8,8 +8,8 @@ library(vegan)
 library(usdm) # for vif()
 library(Hmisc) # for varclus()
 library(dendextend) # solves issues with as.dendrogram()
-# install.packages("glmmTMB")
 library(glmmTMB) # for glmmTMB()
+library(RColorBrewer) # for brewer.pal.info[] in dendrograms
 library(emmeans)
 library(DHARMa)
 
@@ -46,9 +46,9 @@ Master_GHG_2023_phys_noNA <- Master_GHG_2023_phys_noNA %>%
 ## 2.1. Check for outliers ####
 
 names(Master_GHG_2023_phys_noNA)
-vars <- c("Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected",
-          "Chrom_CO2_flux_corrected", "Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_initial", "Env_temp_final", "Conduct_microS_cm", 
-          "Temp_10_cm", "pH_soil", "Redox_pot", "Water_temp", "O2_percent", "O2_mg_l", "Salinity", "pH_water") # selecting variables to analyze
+vars <- c("Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected", "Chrom_CO2_flux_corrected", "Water_level_corr", "Temp_soil", "Rice_cover_prop",
+          "Env_temp_initial_cor", "Env_temp_final_cor", "Conduct_microS_cm","Temp_10_cm", "pH_soil", "Redox_pot", "Water_temp", "O2_percent", 
+          "O2_mg_l", "Salinity", "pH_water") # selecting variables to analyze
 
 # Exploratory plots: histogram, boxplot, vioplot  
 for (i in vars) {hist(Master_GHG_2023_phys_noNA[,i], main = i)
@@ -119,18 +119,18 @@ dev.off()
 # We exclude variables with VIF > 5 stepwise, starting with the variable that has the highest VIF
 # A VIF > 8 is applied in Feld et al., 2016. We lower the threshold to 3 due to rank deficiency in complete models (still with VIF < 5) 
 
-sel_vars1 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_initial", "Env_temp_final",  "Conduct_microS_cm",
+sel_vars1 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_initial_cor", "Env_temp_final_cor",  "Conduct_microS_cm",
                "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_percent", "O2_mg_l",  "Salinity", "pH_water")
 sel_data1 <- (Master_GHG_2023_phys_noNA[, sel_vars1])
 usdm::vifstep(sel_data1, th = 3)
 
 # vifstep: calculates VIF for all variables, excludes the one with the highest VIF (if it is greater than the threshold), 
 # repeat the procedure until no variables with a VIF greater than th remains.
-# Result: 5 variables from the 14 input variables have collinearity problem: O2_percent Env_temp_initial Temp_10_cm pH_water Water_temp
+# Result: 5 variables from the 14 input variables have collinearity problem: O2_percent Env_temp_initial_cor Temp_10_cm pH_water Water_temp
 
 # Data frame after removing coviariates after VIF analysis:  
 
-sel_vars2 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+sel_vars2 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_final_cor",  "Conduct_microS_cm",
                "pH_soil", "Redox_pot", "O2_mg_l",  "Salinity")
 sel_data2 <- (Master_GHG_2023_phys_noNA[, sel_vars2])
 
@@ -184,7 +184,7 @@ dev.off()
 
 ## 2.4. Relationships between Y and X variables? ####
 
-# sel_vars2 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final",  "Conduct_microS_cm",
+# sel_vars2 <- c("Water_level_corr", "Rice_cover_prop", "Env_temp_final_cor",  "Conduct_microS_cm",
 # "Temp_10_cm", "pH_soil", "Redox_pot","Water_temp", "O2_mg_l",  "Salinity", "pH_water")
 
 custom_ylabs <- c( # Defining specific ylabs for scatterplots
@@ -211,7 +211,7 @@ custom_main <- c( # Defining specific xlabs for scatterplots
 
 # Scaterplots: GHG emissions vs covariates for both seasons: According to Zuur et al., 2010.
 
-sel_vars4 <-  c("Env_temp_final",  "Conduct_microS_cm","pH_soil", "Redox_pot") # Variables for FS, no water physicochemical data, no rice and constant water level
+sel_vars4 <-  c("Env_temp_final_cor",  "Conduct_microS_cm","pH_soil", "Redox_pot") # Variables for FS, no water physicochemical data, no rice and constant water level
 
 seasons <- unique(Master_GHG_2023_phys_noNA$Season)
 GHG <- c("Chrom_CH4_flux_corrected", "Chrom_N2O_flux_corrected")
@@ -309,7 +309,7 @@ Master_GHG_2023_phys_noNA$Rep <- as.factor(Master_GHG_2023_phys_noNA$Rep)
 
 # Complete model:
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + Redox_pot + O2_mg_l + Salinity + (1|Rep), family = "gaussian")
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + O2_mg_l + Salinity + (1|Rep), family = "gaussian")
 
 # Simplified versions without <2 factors error:
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat + (1|Rep), family = "gaussian")
@@ -317,15 +317,15 @@ CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_correcte
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Sampling + (1|Rep), family = "gaussian")
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat + Sampling + (1|Rep), family = "gaussian")
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + (1|Rep), family = "gaussian") 
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = "gaussian") 
 
 # Simplified versions with <2 factors error:
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = "gaussian")
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = "gaussian")
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + O2_mg_l + (1|Rep), family = "gaussian")
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + O2_mg_l + (1|Rep), family = "gaussian")
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final + Conduct_microS_cm + pH_soil + Salinity + (1|Rep), family = "gaussian")
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Salinity + (1|Rep), family = "gaussian")
 
 # Simplified versions with Season and Sampling error:
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Season + Sampling + (1|Rep), family = "gaussian")

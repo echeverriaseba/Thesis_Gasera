@@ -228,9 +228,9 @@ Master_GHG_2023 <- Master_GHG_2023[, c("Sampling_date", "Plot", "Chamber_type", 
 write_xlsx(Master_GHG_2023, "outputs/CERESTRES_results/Master_GHG_2023.xlsx") # Excel file with Master_GHG_2023.
 save(Master_GHG_2023, file = "outputs/CERESTRES_results/Master_GHG_2023.RData") # Saves the Master_GHG_2023 dataframe to open with other R projects/scripts
 
-# 4. Physicochemical parameters ####
+# 3. Physicochemical parameters ####
 
-## 4.1. GHG_Physicochemical dataframe ####
+## 3.1. GHG_Physicochemical dataframe ####
 
 Physchem_2023 <- read.csv("data/Physchem_2023.csv", fileEncoding="latin1", na.strings=c("","NA"))
 Physchem_2023$Sampling_date <- as.Date(Physchem_2023$Sampling_date)
@@ -238,7 +238,18 @@ Physchem_2023$Sampling_date <- as.Date(Physchem_2023$Sampling_date)
 Master_GHG_2023_phys  <- Master_GHG_2023  %>% 
   left_join(Physchem_2023, by = c("Sampling_date", "Plot", "Rep", "Treat"))
 
-## 4.2. MicroBIO_Physicochemical dataframe ####
+## 3.2. Complete missing temperature with met. station ####
+# If either Env_temp_initial or Env_temp_final were not recorded, average temperature from the local meteorological station is taken
+
+met_stat<- read.csv("data/Meteocat_temp.csv", fileEncoding="latin1", na.strings=c("","NA")) # Data from local met station
+met_stat$Sampling_date <- as.Date(met_stat$Sampling_date)
+
+Master_GHG_2023_phys <- Master_GHG_2023_phys %>%
+                        left_join(met_stat %>% select(Sampling_date, Station_temp), by = "Sampling_date") %>% 
+                        mutate(Env_temp_final_cor = coalesce(Env_temp_final, Station_temp)) %>% 
+                        mutate(Env_temp_initial_cor = coalesce(Env_temp_initial, Station_temp))
+
+## 3.2. MicroBIO_Physicochemical dataframe ####
 
 # To have a single value for each physicochemical variable representing the conditions in which microorganisms were developed within plots, the average of the three previous
 # physicochemical measurements to the microorganism biodiversity samplings is calculated:
@@ -289,12 +300,12 @@ physchem_avg_2023 <- physchem_avg_2023 %>%
 write_xlsx(physchem_avg_2023, "outputs/CERESTRES_results/physchem_avg_2023.xlsx") # Excel file with physchem_avg_2023
 save(physchem_avg_2023, file = "outputs/CERESTRES_results/physchem_avg_20233.RData") # Saves the physchem_avg_2023 dataframe to open with other R projects/scripts
 
-# 5. Yield ####
+# 4. Yield ####
 
 Yield_2023 <- read.csv("data/Yield_2023.csv", fileEncoding="latin1", na.strings=c("","NA")) %>% 
                         mutate(Yield_Mgha_14perc = Yield_kgha_14perc / 1000)
 
-# 6. Cumulative emissions, GWP and GWPY ####
+# 5. Cumulative emissions, GWP and GWPY ####
 
 # All previous rates and concentrations in CH4-C, N2O-N and CO2-C. For GWP, units are conventionally: CO2-eq, so rates and concentrations must be transformed (for CH4-C and N2O-N) 
 # before calculating GWP. From now onward, rates, cumulative emissions and GWP distinguish in between CCH4 and CH4, N2O and NN2O, and CO2 and CCO2.
