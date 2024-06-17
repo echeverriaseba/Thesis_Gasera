@@ -12,6 +12,7 @@ library(glmmTMB) # for glmmTMB()
 library(RColorBrewer) # for brewer.pal.info[] in dendrograms
 library(emmeans)
 library(DHARMa)
+library(randomForest) # for check_distribution()
 
 # 1. Research question and hypotheses ####
 
@@ -330,6 +331,8 @@ CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_correcte
 # Simplified versions with Season and Sampling error:
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Season + Sampling + (1|Rep), family = "gaussian")
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ I(Sampling^2) + (1|Rep), family = "gaussian")
+
+check_distribution(CH4_mod_tot)
 
 # Model diagnostics:
 DHARMa::simulateResiduals(CH4_mod_tot, plot = T)
