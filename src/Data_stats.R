@@ -129,7 +129,7 @@ usdm::vifstep(sel_data1, th = 3)
 # repeat the procedure until no variables with a VIF greater than th remains.
 # Result: 5 variables from the 14 input variables have collinearity problem: O2_percent Env_temp_initial_cor Temp_10_cm pH_water Water_temp
 
-# Data frame after removing coviariates after VIF analysis:  
+# Data frame removing coviariates after VIF analysis:  
 
 sel_vars2 <- c("Water_level_corr", "Temp_soil", "Rice_cover_prop", "Env_temp_final_cor",  "Conduct_microS_cm",
                "pH_soil", "Redox_pot", "O2_mg_l",  "Salinity")
@@ -319,6 +319,8 @@ CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_correcte
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat + Sampling + (1|Rep), family = "gaussian")
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
                          Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = "gaussian") 
+CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) 
 
 # Simplified versions with <2 factors error:
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
@@ -327,12 +329,26 @@ CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_correcte
                          Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + O2_mg_l + (1|Rep), family = "gaussian")
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
                          Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Salinity + (1|Rep), family = "gaussian")
+CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) # move forward with this one, Salinity results in <2 factors error
 
 # Simplified versions with Season and Sampling error:
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Season + Sampling + (1|Rep), family = "gaussian")
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ I(Sampling^2) + (1|Rep), family = "gaussian")
 
-check_distribution(CH4_mod_tot)
+
+
+
+CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) # This model works fine (check why it doesn't with Redox)
+
+
+CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie()) # Same significances in ANOVA to model wo Redox
+
+
+performance::check_distribution(CH4_mod_tot)
+hist(Master_GHG_2023_phys_noNA$Chrom_CH4_flux_corrected)
 
 # Model diagnostics:
 DHARMa::simulateResiduals(CH4_mod_tot, plot = T)
@@ -343,3 +359,11 @@ performance::check_collinearity(CH4_mod_tot)
 performance::check_singularity(CH4_mod_tot)
 visreg(CH4_mod_tot, scale="response") # Plotting conditional residuals
 
+Master_GHG_2023_redox_noNA <- Master_GHG_2023_phys_noNA %>% 
+                              filter(!is.na(Redox_pot))
+
+CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_redox_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie()) 
+
+CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_redox_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot +  (1|Rep), family = "gaussian",  na.action = na.exclude)
