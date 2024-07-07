@@ -369,6 +369,7 @@ Acc_CHROM_PH <- Master_GHG_2023 %>% # New df with all Chromatography results, it
                        N2O_kgha = N2O_mgm2 / 100,
                        CO2_kgha = CO2_mgm2 / 100) 
 
+# Replacing NA with 0 kgha:
 Acc_CHROM_PH$CCH4_kgha <- ifelse(is.na(Acc_CHROM_PH$CCH4_kgha), 0, Acc_CHROM_PH$CCH4_kgha)
 Acc_CHROM_PH$NN2O_kgha <- ifelse(is.na(Acc_CHROM_PH$NN2O_kgha), 0, Acc_CHROM_PH$NN2O_kgha)  
 Acc_CHROM_PH$CCO2_kgha <- ifelse(is.na(Acc_CHROM_PH$CCO2_kgha), 0, Acc_CHROM_PH$CCO2_kgha) 

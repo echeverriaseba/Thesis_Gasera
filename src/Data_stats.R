@@ -13,8 +13,11 @@ library(RColorBrewer) # for brewer.pal.info[] in dendrograms
 library(emmeans)
 library(DHARMa)
 library(randomForest) # for check_distribution()
+library(visreg) # Plotting conditional residuals
 
 # 1. Research question and hypotheses ####
+
+# a. Are there Legacy effects of Treat implemented on GS over emissions in FS? Or, are there differences 
 
 # a. Is there a GS Treat effect on C-CH4 and N-N2O emitted during the growing season (GS)?
 #    potential_model: GS_GHG_flux ~ Treat*Season
@@ -252,25 +255,12 @@ for (q in seq_along(GHG)) { # Loop through each GHG ("Chrom_CH4_flux_corrected",
 par(mfrow = c(1, 1))
 dev.off()
 
-
-
-# PCA:
-
-# Conduct a PCA to explore variability associated to Season and water management effect on "Chrom_CH4_flux_corrected" and
-# "Chrom_N2O_flux_corrected" (use Maite's Neglecting as a reference)
-
-# PCA <- rda(Nut, scale = TRUE) # Correspondence Analysis and Redundancy Analysis. Scale = TRUE: Defines Correlations instead of Covariance.
-# 
-# biplot(PCA) # prints the PCA as a plot. Plots in red variables and in black the sites.
-
-
-
 # 3. Statistical Modeling ####
 
 # According to 
 #    - Analyzing the impact of multiple stressors in aquatic biomonitoring data: A ‘cookbook’ with applications in R - Feld et al., 2016.
 
-# Testing for linear or quadratic relation between response vars (CH4 and N2O fluxes) and Sampling 
+## 3.1. Testing for linear or quadratic relation between response vars (CH4 and N2O fluxes) and Sampling ####
 
 pdf("outputs/CERESTRES_results/Chromat_results/Sampling_resp.pdf", width = 20, height = 10)
 par(mfrow = c(2, 2), mar = c(5, 5, 2, 0)) # Adjust the margin to reduce space
@@ -294,61 +284,43 @@ dev.off()
 # From these plots a quadratic relation between flux and Sampling can only be observed for CH4 during GS, but not for FS and not for N2O across both seasons.
 # A multi-modal relation can be observed for CH4, considering the complete season.
 
-## 3.1. Initial model and link function  ####
- 
+## 3.2. CH4 - Flux: #### 
+
+### 3.2.1. Exploring distributions: ####
+
+# Creating a "Sampling" column that assigns a number to each unique Sampling_date. This way we can have "Sampling" as a model variable. 
+Master_GHG_2023_phys_noNA <- Master_GHG_2023_phys_noNA %>%
+              arrange(Sampling_date) %>%
+              mutate(Sampling = match(Sampling_date, unique(Sampling_date)))
+
+# Treat, Season and Rep to be included as Factors in model:
 Master_GHG_2023_phys_noNA$Treat <- as.factor(Master_GHG_2023_phys_noNA$Treat)
 Master_GHG_2023_phys_noNA$Season <- as.factor(Master_GHG_2023_phys_noNA$Season)
-Master_GHG_2023_phys_noNA$Sampling <- as.factor(Master_GHG_2023_phys_noNA$Sampling)
 Master_GHG_2023_phys_noNA$Rep <- as.factor(Master_GHG_2023_phys_noNA$Rep)
 
-# Family: Gaussian
-# Interacting independent variables: Treat*Sampling
-# Additional independent variables: Previously selected sel_vars2 for GS / Redox_pot for FS
-# Random effect: Rep
+# Complete model - lm: 
+CH4_mod_tot_lm <- lm(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot) 
+# Salinity and O2_mg_l removed because water physicochemical parameters were not measured in mesocosm  so this leads to Treat*Season combinations without values for 
+# these variables, if they are not removed the model cannot be fit: 
+# Error in `contrasts<-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): 
+# contrasts can be applied only to factors with 2 or more levels
 
-# CH4: 
-
-# Complete model:
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + O2_mg_l + Salinity + (1|Rep), family = "gaussian")
-
-# Simplified versions without <2 factors error:
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Season + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Sampling + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat + Sampling + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = "gaussian") 
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) 
-
-# Simplified versions with <2 factors error:
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + O2_mg_l + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Salinity + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) # move forward with this one, Salinity results in <2 factors error
-
-# Simplified versions with Season and Sampling error:
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Season + Sampling + (1|Rep), family = "gaussian")
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ I(Sampling^2) + (1|Rep), family = "gaussian")
-
-
-
-
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) # This model works fine (check why it doesn't with Redox)
-
-
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie()) # Same significances in ANOVA to model wo Redox
-
-
-performance::check_distribution(CH4_mod_tot)
+performance::check_distribution(CH4_mod_tot_lm)
 hist(Master_GHG_2023_phys_noNA$Chrom_CH4_flux_corrected)
+
+### 3.2.2. Initial model and link function  ####
+
+# Complete model - glmm:
+CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Sampling + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie())
+
+# Note: This model results in the Warning message: In (function (start, objective, gradient = NULL, hessian = NULL,  :
+# NA/NaN function evaluation
+# So the model removing Redox_pot is tested:
+# CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+#                          Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) 
+# Resulting in same significances in ANOVA to model with Redox_pot. We decide to keep the variable.
 
 # Model diagnostics:
 DHARMa::simulateResiduals(CH4_mod_tot, plot = T)
@@ -359,11 +331,50 @@ performance::check_collinearity(CH4_mod_tot)
 performance::check_singularity(CH4_mod_tot)
 visreg(CH4_mod_tot, scale="response") # Plotting conditional residuals
 
-Master_GHG_2023_redox_noNA <- Master_GHG_2023_phys_noNA %>% 
-                              filter(!is.na(Redox_pot))
+### 3.2.3. Pair comparisons  ####
 
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_redox_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie()) 
+emmeans(CH4_mod_tot, ~Treat , type = "response")
+pairs(emmeans(CH4_mod_tot, ~Treat , type = "response"))
 
-CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_redox_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot +  (1|Rep), family = "gaussian",  na.action = na.exclude)
+emmeans(CH4_mod_tot, ~Treat|Season, type = "response")
+pairs(emmeans(CH4_mod_tot, ~Treat|Season, type = "response"))
+
+emmeans(CH4_mod_tot, ~Season , type = "response")
+pairs(emmeans(CH4_mod_tot, ~Season , type = "response"))
+
+emmeans(CH4_mod_tot, ~Season|Treat, type = "response")
+pairs(emmeans(CH4_mod_tot, ~Season|Treat, type = "response"))
+
+## 3.3. CH4 - Cumulative emissions: #### 
+
+## 3.3.1. CH4 - GS #### 
+
+# Non-parametric Kruskal-Wallis Test is performed due to just having three observations (Plots) per group (Treat).
+Acc_CH4_GS_KWdf <- Acc_CHROM_GS_sum %>% 
+                    select(Plot, Treat, CCH4_kgha_tot)
+
+KW_CH4_acc_GS <- kruskal.test(CCH4_kgha_tot ~ Treat, data = Acc_CH4_GS_KWdf)
+print(KW_CH4_acc_GS)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_CH4_acc_GS<- pairwise.wilcox.test(Acc_CH4_GS_KWdf$CCH4_kgha_tot, Acc_CH4_GS_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_CH4_acc_GS)
+
+## 3.3.1. CH4 - PH #### 
+
+# Non-parametric Kruskal-Wallis Test is performed due to just having three observations (Plots) per group (Treat).
+Acc_CH4_PH_KWdf <- Acc_CHROM_PH_sum %>% 
+                    select(Plot, Treat, CCH4_kgha_tot)
+
+KW_CH4_acc_PH <- kruskal.test(CCH4_kgha_tot ~ Treat, data = Acc_CH4_PH_KWdf)
+print(KW_CH4_acc_PH)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_CH4_acc_PH<- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "bonferroni")
+print(Wilcox_CH4_acc_PH)
+
+Wilcox_CH4_acc_PH<- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_CH4_acc_PH)
+
+Wilcox_CH4_acc_PH<- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat)
+print(Wilcox_CH4_acc_PH)
