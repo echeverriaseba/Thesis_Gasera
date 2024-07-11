@@ -284,9 +284,9 @@ dev.off()
 # From these plots a quadratic relation between flux and Sampling can only be observed for CH4 during GS, but not for FS and not for N2O across both seasons.
 # A multi-modal relation can be observed for CH4, considering the complete season.
 
-## 3.2. CH4 - Flux: #### 
+## 3.2. CH4 - Flux #### 
 
-### 3.2.1. Exploring distributions: ####
+### 3.2.1. Exploring distributions ####
 
 # Creating a "Sampling" column that assigns a number to each unique Sampling_date. This way we can have "Sampling" as a model variable. 
 Master_GHG_2023_phys_noNA <- Master_GHG_2023_phys_noNA %>%
@@ -306,6 +306,11 @@ CH4_mod_tot_lm <- lm(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected 
 # Error in `contrasts<-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]): 
 # contrasts can be applied only to factors with 2 or more levels
 
+# Check for normally distributed residuals:
+residuals_lm <- residuals(CH4_mod_tot_lm)
+shapiro.test(residuals_lm)
+
+# Check for probable distribution: 
 performance::check_distribution(CH4_mod_tot_lm)
 hist(Master_GHG_2023_phys_noNA$Chrom_CH4_flux_corrected)
 
@@ -345,9 +350,80 @@ pairs(emmeans(CH4_mod_tot, ~Season , type = "response"))
 emmeans(CH4_mod_tot, ~Season|Treat, type = "response")
 pairs(emmeans(CH4_mod_tot, ~Season|Treat, type = "response"))
 
-## 3.3. CH4 - Cumulative emissions: #### 
+### 3.2.4. Alt. 1 - Only FS: Assessing only GHG emission events for FS ####
 
-## 3.3.1. CH4 - GS #### 
+event_dates <- as.Date(c('2023-10-23', '2023-11-03', '2023-11-15'))
+
+PH_events <- Master_GHG_2023_phys_noNA %>% 
+              filter(Sampling_date %in% event_dates)
+
+# Initial model and link function  
+
+# Complete model - glmm:
+CH4_mod_PH_events <- glmmTMB(data = PH_events, Chrom_CH4_flux_corrected ~ Treat + Sampling + 
+                         Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie())
+
+# Note: This model results in the Warning message: In (function (start, objective, gradient = NULL, hessian = NULL,  :
+# NA/NaN function evaluation
+# So the model removing Redox_pot is tested:
+# CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+#                          Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) 
+# Resulting in same significances in ANOVA to model with Redox_pot. We decide to keep the variable.
+
+# Model diagnostics:
+DHARMa::simulateResiduals(CH4_mod_PH_events, plot = T)
+summary(CH4_mod_PH_events)
+car::Anova(CH4_mod_PH_events)
+performance::r2(CH4_mod_PH_events)
+performance::check_collinearity(CH4_mod_PH_events)
+performance::check_singularity(CH4_mod_PH_events)
+visreg(CH4_mod_PH_events, scale="response") # Plotting conditional residuals
+
+# Pair comparisons:
+emmeans(CH4_mod_PH_events, ~Treat , type = "response")
+pairs(emmeans(CH4_mod_PH_events, ~Treat , type = "response"))
+
+### 3.2.5. Alt. 2 - GS and FS: Assessing only GHG emission events for FS ####
+
+Full_PH_events <- Master_GHG_2023_phys_noNA %>% 
+                    filter(Season == "GS" | ((Sampling_date %in% event_dates) & Season == "PH"))
+
+# Complete model - glmm:
+CH4_mod_Full_PH_events <- glmmTMB(data = Full_PH_events, Chrom_CH4_flux_corrected ~ Treat*Season + Sampling + Water_level_corr + Temp_soil +
+                                    Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie())
+
+# Note: This model results in the Warning message: In (function (start, objective, gradient = NULL, hessian = NULL,  :
+# NA/NaN function evaluation
+# So the model removing Redox_pot is tested:
+# CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+#                          Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) 
+# Resulting in same significances in ANOVA to model with Redox_pot. We decide to keep the variable.
+
+# Model diagnostics:
+DHARMa::simulateResiduals(CH4_mod_Full_PH_events, plot = T)
+summary(CH4_mod_Full_PH_events)
+car::Anova(CH4_mod_Full_PH_events)
+performance::r2(CH4_mod_Full_PH_events)
+performance::check_collinearity(CH4_mod_Full_PH_events)
+performance::check_singularity(CH4_mod_Full_PH_events)
+visreg(CH4_mod_Full_PH_events, scale="response") # Plotting conditional residuals
+
+# Pair comparisons:
+emmeans(CH4_mod_Full_PH_events, ~Treat , type = "response")
+pairs(emmeans(CH4_mod_Full_PH_events, ~Treat , type = "response"))
+
+emmeans(CH4_mod_Full_PH_events, ~Treat|Season, type = "response")
+pairs(emmeans(CH4_mod_Full_PH_events, ~Treat|Season, type = "response"))
+
+emmeans(CH4_mod_Full_PH_events, ~Season , type = "response")
+pairs(emmeans(CH4_mod_Full_PH_events, ~Season , type = "response"))
+
+emmeans(CH4_mod_Full_PH_events, ~Season|Treat, type = "response")
+pairs(emmeans(CH4_mod_Full_PH_events, ~Season|Treat, type = "response"))
+
+## 3.3. CH4 - Cumulative emissions #### 
+
+### 3.3.1. CH4 - GS #### 
 
 # Non-parametric Kruskal-Wallis Test is performed due to just having three observations (Plots) per group (Treat).
 Acc_CH4_GS_KWdf <- Acc_CHROM_GS_sum %>% 
@@ -360,7 +436,7 @@ print(KW_CH4_acc_GS)
 Wilcox_CH4_acc_GS<- pairwise.wilcox.test(Acc_CH4_GS_KWdf$CCH4_kgha_tot, Acc_CH4_GS_KWdf$Treat, p.adjust.method = "holm")
 print(Wilcox_CH4_acc_GS)
 
-## 3.3.1. CH4 - PH #### 
+### 3.3.2. CH4 - PH #### 
 
 # Non-parametric Kruskal-Wallis Test is performed due to just having three observations (Plots) per group (Treat).
 Acc_CH4_PH_KWdf <- Acc_CHROM_PH_sum %>% 
@@ -370,11 +446,128 @@ KW_CH4_acc_PH <- kruskal.test(CCH4_kgha_tot ~ Treat, data = Acc_CH4_PH_KWdf)
 print(KW_CH4_acc_PH)
 
 # Post-Hoc Analysis: pairwise Wilcoxon tests
-Wilcox_CH4_acc_PH<- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "bonferroni")
+Wilcox_CH4_acc_PH <- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "bonferroni")
 print(Wilcox_CH4_acc_PH)
 
-Wilcox_CH4_acc_PH<- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "holm")
+Wilcox_CH4_acc_PH <- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "holm")
 print(Wilcox_CH4_acc_PH)
 
-Wilcox_CH4_acc_PH<- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat)
+Wilcox_CH4_acc_PH <- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "none")
 print(Wilcox_CH4_acc_PH)
+
+## 3.4. GWP - GWPY #### 
+
+### 3.4.1. GS: GWP #### 
+
+# Kruskal-Wallis Test:
+GWP_GS_KWdf <- Acc_CHROM_GS_sum %>% 
+                    select(Plot, Treat, GWP)
+
+KW_GWP_GS <- kruskal.test(GWP ~ Treat, data = GWP_GS_KWdf)
+print(KW_GWP_GS)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_GWP_GS <- pairwise.wilcox.test(GWP_GS_KWdf$GWP, GWP_GS_KWdf$Treat, p.adjust.method = "bonferroni")
+print(Wilcox_GWP_GS)
+
+Wilcox_GWP_GS <- pairwise.wilcox.test(GWP_GS_KWdf$GWP, GWP_GS_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_GWP_GS)
+
+Wilcox_GWP_GS <- pairwise.wilcox.test(GWP_GS_KWdf$GWP, GWP_GS_KWdf$Treat, p.adjust.method = "none")
+print(Wilcox_GWP_GS)
+
+### 3.4.2. GS: GWPY ####
+
+# Kruskal-Wallis Test:
+GWPY_GS_KWdf <- Acc_CHROM_GS_sum %>% 
+                    select(Plot, Treat, GWPY)
+
+KW_GWPY_GS <- kruskal.test(GWPY ~ Treat, data = GWPY_GS_KWdf)
+print(KW_GWPY_GS)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_GWPY_GS <- pairwise.wilcox.test(GWPY_GS_KWdf$GWPY, GWPY_GS_KWdf$Treat, p.adjust.method = "bonferroni")
+print(Wilcox_GWPY_GS)
+
+Wilcox_GWPY_GS <- pairwise.wilcox.test(GWPY_GS_KWdf$GWPY, GWPY_GS_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_GWPY_GS)
+
+Wilcox_GWPY_GS <- pairwise.wilcox.test(GWPY_GS_KWdf$GWPY, GWPY_GS_KWdf$Treat, p.adjust.method = "none")
+print(Wilcox_GWPY_GS)
+
+### 3.4.3. PH: GWP #### 
+
+# Kruskal-Wallis Test:
+GWP_PH_KWdf <- Acc_CHROM_PH_sum %>% 
+  select(Plot, Treat, GWP)
+
+KW_GWP_PH <- kruskal.test(GWP ~ Treat, data = GWP_PH_KWdf)
+                  print(KW_GWP_PH)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_GWP_PH <- pairwise.wilcox.test(GWP_PH_KWdf$GWP, GWP_PH_KWdf$Treat, p.adjust.method = "bonferroni")
+print(Wilcox_GWP_PH)
+
+Wilcox_GWP_PH <- pairwise.wilcox.test(GWP_PH_KWdf$GWP, GWP_PH_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_GWP_PH)
+
+Wilcox_GWP_PH <- pairwise.wilcox.test(GWP_PH_KWdf$GWP, GWP_PH_KWdf$Treat, p.adjust.method = "none")
+print(Wilcox_GWP_PH)
+
+### 3.4.4. PH: GWPY #### 
+
+# Kruskal-Wallis Test:
+GWPY_PH_KWdf <- Acc_CHROM_PH_sum %>% 
+                  select(Plot, Treat, GWPY)
+
+KW_GWPY_PH <- kruskal.test(GWPY ~ Treat, data = GWPY_PH_KWdf)
+print(KW_GWPY_PH)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_GWPY_PH <- pairwise.wilcox.test(GWPY_PH_KWdf$GWPY, GWPY_PH_KWdf$Treat, p.adjust.method = "bonferroni")
+print(Wilcox_GWPY_PH)
+
+Wilcox_GWPY_PH <- pairwise.wilcox.test(GWPY_PH_KWdf$GWPY, GWPY_PH_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_GWPY_PH)
+
+Wilcox_GWPY_PH <- pairwise.wilcox.test(GWPY_PH_KWdf$GWPY, GWPY_PH_KWdf$Treat, p.adjust.method = "none")
+print(Wilcox_GWPY_PH)
+
+### 3.4.5. Both seasons: GWP #### 
+
+# Kruskal-Wallis Test:
+GWP_tot_KWdf <- Acc_CHROM_tot_sum %>% 
+                  select(Plot, Treat, GWP)
+
+KW_GWP_tot <- kruskal.test(GWP ~ Treat, data = GWP_tot_KWdf)
+print(KW_GWP_tot)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_GWP_tot <- pairwise.wilcox.test(GWP_tot_KWdf$GWP, GWP_tot_KWdf$Treat, p.adjust.method = "bonferroni")
+print(Wilcox_GWP_tot)
+
+Wilcox_GWP_tot <- pairwise.wilcox.test(GWP_tot_KWdf$GWP, GWP_tot_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_GWP_tot)
+
+Wilcox_GWP_tot <- pairwise.wilcox.test(GWP_tot_KWdf$GWP, GWP_tot_KWdf$Treat, p.adjust.method = "none")
+print(Wilcox_GWP_tot)
+
+### 3.4.6. Both seasons: GWPY #### 
+
+# Kruskal-Wallis Test:
+GWPY_tot_KWdf <- Acc_CHROM_tot_sum %>% 
+  select(Plot, Treat, GWPY)
+
+KW_GWPY_tot <- kruskal.test(GWPY ~ Treat, data = GWPY_tot_KWdf)
+print(KW_GWPY_tot)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_GWPY_tot <- pairwise.wilcox.test(GWPY_tot_KWdf$GWPY, GWPY_tot_KWdf$Treat, p.adjust.method = "bonferroni")
+print(Wilcox_GWPY_tot)
+
+Wilcox_GWPY_tot <- pairwise.wilcox.test(GWPY_tot_KWdf$GWPY, GWPY_tot_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_GWPY_tot)
+
+Wilcox_GWPY_tot <- pairwise.wilcox.test(GWPY_tot_KWdf$GWPY, GWPY_tot_KWdf$Treat, p.adjust.method = "none")
+print(Wilcox_GWPY_tot)
+

@@ -27,7 +27,7 @@ Water_plot_2023b <- ggplot(Avg_water_level3, aes(x = Sampling_date, color = Trea
                             scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme_bw() +
                             labs(y = "Water level (cm)") +
-                            labs(x = "Sampling date") +
+                            labs(x = "Date") +
                             geom_hline(yintercept=0, color = "grey") +
                             geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
                             annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
@@ -129,7 +129,7 @@ Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                     annotate('text', x = as.Date("2023-09-30"), y = 45, label = "Growing Season", size = 4, color = "grey", angle = '90') +
                                     annotate('text', x = as.Date("2023-10-06"), y = 45, label = "Fallow Season", size = 4, color = "grey", angle = '270') +
                                     theme(
-                                          axis.title.y = element_text(color = "black"), legend.margin=margin(0,0,0,0),
+                                          axis.title.y = element_text(color = "black"), legend.margin= ggplot2::margin(0,0,0,0),
                                           axis.text.y = element_text(color = "black"),
                                           axis.title.y.right = element_text(color = "black"),
                                           axis.text.y.right = element_text(color = "black"),
@@ -875,10 +875,10 @@ Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CCH4_kgha_tot, f
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
-                            ggtitle("Post-Harvest") +
+                            ggtitle("Fallow season") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
-                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
+                            theme(plot.margin = ggplot2::margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
                               axis.text.y = element_blank(),
@@ -893,10 +893,10 @@ Acc_CH4_PH_plot2 <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CCH4_kgha_tot, 
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
-                            ggtitle("Post-Harvest") +
+                            ggtitle("Fallow season") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
-                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            theme(plot.margin = ggplot2::margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
                               axis.text.y = element_blank(),
@@ -913,10 +913,10 @@ Acc_CH4_PH_plot3 <- ggplot(Acc_CHROM_PH_sum, aes(Treat, CCH4_kgha_tot, group = T
                             geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
                             scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
                             scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
-                            ggtitle("Post-Harvest") +
+                            ggtitle("Fallow season") +
                             theme_bw() +
                             labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
-                            theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
+                            theme(plot.margin = ggplot2::margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
                               axis.text.y = element_blank(),

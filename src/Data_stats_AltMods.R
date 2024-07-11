@@ -370,7 +370,8 @@ visreg(N2O_mod_FS_tot, scale="response") # Plotting conditional residuals
 
 
 # CH4 - FS:
-CH4_mod_FS_tot <-  glmmTMB(data = FS_data, Chrom_CH4_flux_corrected ~ Treat*Sampling + Redox_pot, family = "gaussian")
+CH4_mod_FS_tot <-  glmmTMB(data = FS_data, Chrom_CH4_flux_corrected ~ Treat + Sampling + 
+                             Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie())
 
 # Model diagnostics:
 DHARMa::simulateResiduals(CH4_mod_FS_tot, plot = T)
@@ -381,10 +382,55 @@ performance::check_collinearity(CH4_mod_FS_tot)
 performance::check_singularity(CH4_mod_FS_tot)
 visreg(CH4_mod_FS_tot, scale="response") # Plotting conditional residuals
 
+# Pair comparisons: 
+
+emmeans(CH4_mod_FS_tot, ~Treat , type = "response")
+pairs(emmeans(CH4_mod_FS_tot, ~Treat , type = "response"))
 
 
 
 
 
-## 3.2. Multi-model inference and model averaging  ####
+
+
+# Both seasons, FS only with event dates ####
+
+event_dates <- as.Date(c('2023-10-23', '2023-11-03', '2023-11-15'))
+
+Full_PH_events <- Master_GHG_2023_phys_noNA %>% 
+                    filter(Season == "GS" | ((Sampling_date %in% event_dates) & Season == "PH"))
+
+# Complete model - glmm:
+CH4_mod_Full_PH_events <- glmmTMB(data = Full_PH_events, Chrom_CH4_flux_corrected ~ Treat*Season + Sampling + Water_level_corr + Temp_soil +
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie())
+
+# Note: This model results in the Warning message: In (function (start, objective, gradient = NULL, hessian = NULL,  :
+# NA/NaN function evaluation
+# So the model removing Redox_pot is tested:
+# CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
+#                          Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) 
+# Resulting in same significances in ANOVA to model with Redox_pot. We decide to keep the variable.
+
+# Model diagnostics:
+DHARMa::simulateResiduals(CH4_mod_Full_PH_events, plot = T)
+summary(CH4_mod_Full_PH_events)
+car::Anova(CH4_mod_Full_PH_events)
+performance::r2(CH4_mod_Full_PH_events)
+performance::check_collinearity(CH4_mod_Full_PH_events)
+performance::check_singularity(CH4_mod_Full_PH_events)
+visreg(CH4_mod_Full_PH_events, scale="response") # Plotting conditional residuals
+
+### 3.2.3. Pair comparisons  ####
+
+emmeans(CH4_mod_Full_PH_events, ~Treat , type = "response")
+pairs(emmeans(CH4_mod_Full_PH_events, ~Treat , type = "response"))
+
+emmeans(CH4_mod_Full_PH_events, ~Treat|Season, type = "response")
+pairs(emmeans(CH4_mod_Full_PH_events, ~Treat|Season, type = "response"))
+
+emmeans(CH4_mod_Full_PH_events, ~Season , type = "response")
+pairs(emmeans(CH4_mod_Full_PH_events, ~Season , type = "response"))
+
+emmeans(CH4_mod_Full_PH_events, ~Season|Treat, type = "response")
+pairs(emmeans(CH4_mod_Full_PH_events, ~Season|Treat, type = "response"))
 
