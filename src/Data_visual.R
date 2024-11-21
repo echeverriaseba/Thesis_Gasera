@@ -20,6 +20,8 @@ Avg_water_level3 <- Master_GHG_2023 %>%
 
 Avg_water_level3$avg_Water_level_corr[is.na(Avg_water_level3$avg_Water_level_corr)] <- NA # Replace NaN for NA values
 
+date_breaks <- seq(from = as.Date("2023-05-24"), to = as.Date("2023-12-12"), by = "14 days")
+
 pdf('outputs/CERESTRES_results/Water_plot_2023b.pdf', width = 12)
 
 Water_plot_2023b <- ggplot(Avg_water_level3, aes(x = Sampling_date, color = Treat, linetype = avg_Water_level_corr)) +
@@ -27,20 +29,22 @@ Water_plot_2023b <- ggplot(Avg_water_level3, aes(x = Sampling_date, color = Trea
                             scale_colour_manual(name = "Treatment", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme_bw() +
                             labs(y = "Water level (cm)") +
-                            labs(x = "Date") +
+                            labs(x = "Date (mm-dd)") +
                             geom_hline(yintercept=0, color = "grey") +
                             geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
                             annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
                             scale_linetype_manual(name = "avg_Water_level_corr",
                                                   values = c("avg_Water_level_corr" = "dashed"), labels = "Water level (cm)") +
                             guides(linetype = guide_legend(override.aes = list(color = "black"))) +
-                            theme(axis.title.y = element_text(color = "black"), 
-                                  axis.text.y = element_text(color = "black"),
+                            theme(axis.title.y = element_text(color = "black", size = 16), 
+                                  axis.text.y = element_text(color = "black", size = 16),
+                                  axis.title.x = element_text(color = "black", size = 16), 
+                                  axis.text.x = element_text(color = "black", size = 16),
                                   axis.title.y.right = element_text(color = "black"),
                                   axis.text.y.right = element_text(color = "black"), strip.background = element_blank(),
                                   strip.placement = "outside",
                                   plot.margin = unit(c(0, 1, 1, 1.35), "lines"))+
-                            scale_x_date(date_breaks = "14 day", date_labels = "%m.%d")
+                            scale_x_date(limits = as.Date(c("2023-05-24", "2023-12-15")), breaks = date_breaks, date_labels = "%m.%d")
 
 print(Water_plot_2023b) # Water level all treats
 
@@ -125,18 +129,18 @@ Rates_vs_time_CH4_CHROM <- ggplot(data = Avg_rates_compare_TR_CHROM, aes(color =
                                     geom_hline(yintercept = 0, color = "grey") +
                                     geom_vline(xintercept = as.Date("2023-10-03"), linetype = "dashed", color = "grey") +
                                     annotate("rect", xmin = as.Date("2023-06-22"), xmax = as.Date("2023-07-03"), ymin = -Inf, ymax = Inf, fill = "grey", alpha = 0.5) +
-                                    annotate('text', x = as.Date("2023-06-27"), y = 45, label = "Mid-Season Drainage", size = 4, color = "darkgrey", angle = '90') +
-                                    annotate('text', x = as.Date("2023-09-30"), y = 45, label = "Growing Season", size = 4, color = "grey", angle = '90') +
-                                    annotate('text', x = as.Date("2023-10-06"), y = 45, label = "Fallow Season", size = 4, color = "grey", angle = '270') +
+                                    annotate('text', x = as.Date("2023-06-27"), y = 45, label = "Mid-Season Drainage", size = 7, color = "darkgrey", angle = '90') +
+                                    annotate('text', x = as.Date("2023-09-30"), y = 45, label = "Growing Season", size = 7, color = "grey", angle = '90') +
+                                    annotate('text', x = as.Date("2023-10-06"), y = 45, label = "Fallow Season", size = 7, color = "grey", angle = '270') +
                                     theme(
-                                          axis.title.y = element_text(color = "black"), legend.margin= ggplot2::margin(0,0,0,0),
-                                          axis.text.y = element_text(color = "black"),
+                                          axis.title.y = element_text(color = "black", size = 16), legend.margin= ggplot2::margin(0,0,0,0),
+                                          axis.text.y = element_text(color = "black", size = 16),
                                           axis.title.y.right = element_text(color = "black"),
                                           axis.text.y.right = element_text(color = "black"),
                                           strip.background = element_blank(),
                                           strip.placement = "outside",
-                                          legend.text = element_text(size = 12),
-                                          legend.title = element_text(size = 12),
+                                          legend.text = element_text(size = 16),
+                                          legend.title = element_text(size = 16),
                                           axis.text.x = element_blank(),
                                           legend.position="top",
                                           plot.margin = unit(c(1, 1, 0, 1.3), "lines"),
@@ -215,9 +219,13 @@ ggsave("outputs/CERESTRES_results/Gasera_vs_Chromat/CH4_methods_gascor.pdf", wid
 
 Rates_vs_time_CH4_CHROM_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Water_plot_2023b, nrow = 2, ncol = 1)) # CCH4 flux and water level arrange
 Rates_vs_time_CH4_N2O_CHROM_arr <- grid.arrange(arrangeGrob(Rates_vs_time_CH4_CHROM, Rates_vs_time_N2O_CHROM2, Water_plot_2023b, nrow = 3, ncol = 1)) # CCH4 flux, NN2O flux and water level arrange
+Rates_vs_time_N2O_CHROM_arr <- grid.arrange(arrangeGrob(Rates_vs_time_N2O_CHROM2, Water_plot_2023b, nrow = 2, ncol = 1)) # NN2O flux and water level arrange
+Rates_vs_time_N2O_CHROM_arr2 <- ((Rates_vs_time_N2O_CHROM2 / Water_plot_2023b) | N2O_acc_arr2)
 
 ggsave("outputs/CERESTRES_results/Chromat_results/CH4_flux_water.pdf", width = 20, height = 10, plot = Rates_vs_time_CH4_CHROM_arr)
+ggsave("outputs/CERESTRES_results/Chromat_results/N2O_flux_water.pdf", width = 20, height = 10, plot = Rates_vs_time_N2O_CHROM_arr)
 ggsave("outputs/CERESTRES_results/Chromat_results/CH4_N2O_flux_water.pdf", width = 20, height = 10, plot = Rates_vs_time_CH4_N2O_CHROM_arr)
+ggsave("outputs/CERESTRES_results/Chromat_results/N2O_flux_acc_water.pdf", width = 20, height = 10, plot = Rates_vs_time_N2O_CHROM_arr2)
 
 ## 2.3. N2O ####
 
@@ -749,13 +757,16 @@ Acc_CH4_tot_plot <-  ggplot(Acc_CHROM_tot_sum, aes(x = Treat, y = CCH4_kgha_tot,
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
-                            ggtitle("Complete Season") +
+                            ggtitle("Annual Emissions") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
-                              plot.title = element_text(hjust = 0.5))
+                              axis.text.x = element_text(size = 16),
+                              axis.text.y = element_text(size = 16),
+                              axis.title.y = element_text(size = 16),
+                              plot.title = element_text(hjust = 0.5, size = 16))
 
 print(Acc_CH4_tot_plot)
 
@@ -817,8 +828,9 @@ Acc_CH4_GS_plot <-  ggplot(Acc_CHROM_GS_sum, aes(x = Treat, y = CCH4_kgha_tot, f
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
                               axis.text.y = element_blank(),
+                              axis.text.x = element_text(size = 16),
                               axis.title.y = element_blank(),
-                              plot.title = element_text(hjust = 0.5))
+                              plot.title = element_text(hjust = 0.5, size = 16))
 
 print(Acc_CH4_GS_plot)
 
@@ -875,15 +887,17 @@ Acc_CH4_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = CCH4_kgha_tot, f
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",C-CH[4], " emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
-                            ggtitle("Fallow season") +
+                            ggtitle("Fallow Season") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme(plot.margin = ggplot2::margin(l = 0, r = 5, t = 25, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(0, 320), breaks = seq(0, 320, by = 50)) +
                             theme(
+                              axis.text.x = element_text(size = 16),
+                              axis.title.x = element_text(size = 16),
                               axis.text.y = element_blank(),
                               axis.title.y = element_blank(),
-                              plot.title = element_text(hjust = 0.5))
+                              plot.title = element_text(hjust = 0.5, size = 16))
 
 print(Acc_CH4_PH_plot)
 
@@ -964,7 +978,7 @@ Acc_N2O_tot_plot2 <- ggplot(Acc_CHROM_tot_sum, aes(Treat, NN2O_kgha_tot, group =
                             # theme(plot.margin = margin(l = 0, r = 5, t = 25, b = 0, unit = "pt")) + # Adjust margins to correct arrange below.
                             scale_y_continuous(position = "right", limits = c(-2, 5), breaks = seq(-2, 5, by = 1)) +
                             theme(
-                              plot.title = element_blank(),
+                              plot.title = element_text(hjust = 0.5),
                               legend.position = "none",
                               plot.margin = margin(l = 0, r = 10, t = 0, b = 14, unit = "pt")) +
                             geom_point(data = Avg_Acc_CHROM_tot_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, colour = "black", size = 6) +
@@ -1006,7 +1020,7 @@ Acc_N2O_GS_plot2 <- ggplot(Acc_CHROM_GS_sum, aes(Treat, NN2O_kgha_tot, group = T
                               axis.text.y = element_blank(),
                               axis.title.y = element_blank(),
                               legend.position = "none",
-                              plot.title = element_blank(),
+                              plot.title = element_text(hjust = 0.5),
                               plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt")) +
                             geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, colour = "black", size = 6) +
                             geom_point(data = Avg_Acc_CHROM_GS_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, size = 5) +
@@ -1021,7 +1035,7 @@ Acc_N2O_PH_plot <-  ggplot(Acc_CHROM_PH_sum, aes(x = Treat, y = NN2O_kgha_tot, f
                             geom_boxplot(width = 0.4, size = 0.2, show.legend = FALSE) + 
                             labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",N-N[2], "O emissions (kg ", ha^-1, ")"))) +
                             theme_bw()+
-                            ggtitle("Post-Harvest") +
+                            ggtitle("Fallow Season") +
                             scale_fill_manual(values = c(CON = "#002B5B", MSD = "#03C988", AWD = "#FF5D5D"), guide = "none") +
                             scale_colour_manual(name = "Treatment", values = c("#820300", "#820300", "#820300"), breaks=c('CON', 'MSD', 'AWD')) +
                             theme(plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt")) + # Adjust margins to correct arrange below.
@@ -1039,7 +1053,7 @@ Acc_N2O_PH_plot2 <- ggplot(Acc_CHROM_PH_sum, aes(Treat, NN2O_kgha_tot, group = T
                             geom_point(position = position_jitterdodge (0.80, jitter.width = 0.2, jitter.height = 0), alpha = 0.2, shape = 21,colour = "black",size = 5)+
                             scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
                             scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
-                            ggtitle("Post-Harvest") +
+                            ggtitle("Fallow Season") +
                             theme_bw() +
                             labs(x = "Irrigation Strategies", y = expression(paste("Cumulative ",N-N[2], "O emissions (kg ", ha^-1, ")"))) +
                             scale_y_continuous(position = "right", limits = c(-2, 5), breaks = seq(-2, 5, by = 1)) +
@@ -1047,7 +1061,7 @@ Acc_N2O_PH_plot2 <- ggplot(Acc_CHROM_PH_sum, aes(Treat, NN2O_kgha_tot, group = T
                               axis.text.y = element_blank(),
                               axis.title.y = element_blank(),
                               legend.position = "none",
-                              plot.title = element_blank(),
+                              plot.title = element_text(hjust = 0.5),
                               plot.margin = margin(l = 0, r = 5, t = 0, b = 14, unit = "pt")) +
                             geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, colour = "black", size = 6) +
                             geom_point(data = Avg_Acc_CHROM_PH_sum, aes(x = Treat, y =  mean_NN2O_kgha_tot), shape = 19, size = 5) +
@@ -1224,7 +1238,7 @@ GWP_PH_dots <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWP, group = Treat, colour = 
                       scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
                       theme_bw() +
                       labs(x = "Irrigation Strategies") +
-                      ggtitle("Post-Harvest") +
+                      ggtitle("Fallow Season") +
                       scale_y_continuous(position = "right", limits = c(500, 20000), breaks = seq(0, 20000, by = 4000)) +
                       # ylab(expression(paste("GWP (kg ",CO[2], " eq ", ha^-1, " ", season^-1, ")"))) +
                       theme(
@@ -1247,7 +1261,7 @@ GWP_PH_dots2 <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWP, group = Treat, colour =
                         scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D")) +
                         scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
                         theme_bw() +
-                        ggtitle("Post-Harvest") +
+                        ggtitle("Fallow Season") +
                         scale_x_discrete(position = "top") +
                         scale_y_continuous(position = "left", limits = c(500, 20000), breaks = seq(0, 20000, by = 4000)) +
                         theme(
@@ -1266,8 +1280,8 @@ print(GWP_PH_dots2)
 
 ## 5.3. Plot arrange ####
 
-GWP_dots_arr <- grid.arrange(arrangeGrob(GWP_GS_dots, GWP_PH_dots, GWP_tot_dots2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4) )) # GWP plots arranged (GS, PH and Tot)
-GWP_dots_arr2 <- grid.arrange(arrangeGrob(GWP_GS_dots2, GWP_PH_dots2, GWP_tot_dots3, nrow = 1, ncol = 3, widths = c(0.4, 0.3, 0.3) )) # GWP plots arranged (GS, PH and Tot)
+GWP_dots_arr <- grid.arrange(arrangeGrob(GWP_GS_dots, GWP_PH_dots, GWP_tot_dots2, nrow = 1, ncol = 3, widths = c(0.3, 0.3, 0.4))) # GWP plots arranged (GS, PH and Tot)
+GWP_dots_arr2 <- grid.arrange(arrangeGrob(GWP_GS_dots2, GWP_PH_dots2, GWP_tot_dots3, nrow = 1, ncol = 3, widths = c(0.4, 0.3, 0.3))) # GWP plots arranged (GS, PH and Tot)
 
 ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr.pdf", plot = GWP_dots_arr ,width = 10, height = 10)   
 ggsave("outputs/CERESTRES_results/Chromat_results/GWP_dots_arr2.pdf", plot = GWP_dots_arr2 ,width = 8, height = 10) 
@@ -1403,7 +1417,7 @@ GWPY_PH <- ggplot(Acc_CHROM_PH_sum, aes(Treat, GWPY, group = Treat, colour = Tre
                     scale_colour_manual(name = "Irrigation Strategies: ", values = c("#002B5B", "#03C988", "#FF5D5D"), breaks=c('CON', 'MSD', 'AWD')) +
                     scale_fill_manual(values = c("#002B5B", "#03C988", "#FF5D5D"), guide = "none") +
                     theme_bw() +
-                    ggtitle("Post-Harvest") +
+                    ggtitle("Fallow Season") +
                     scale_y_continuous(position = "left", limits = c(0, 3500), breaks = seq(0, 3500, by = 500)) +
                     scale_x_discrete(position = "top") +
                     ylab(expression(paste(GWP[Y], " (kg ", CO[2], " eq ", Mg^-1, ")"))) +
@@ -1455,3 +1469,101 @@ Yield_GWP_GWPY_arr <- grid.arrange(arrangeGrob(GWP_dots_arr2, GWPY_arr2, Yield_2
 
 ggsave("outputs/CERESTRES_results/Chromat_results/Yield_GWPY_arr.pdf", plot = Yield_GWPY_arr ,width = 10, height = 10)   
 ggsave("outputs/CERESTRES_results/Chromat_results/Yield_GWP_GWPY_arr.pdf", plot = Yield_GWP_GWPY_arr ,width = 10, height = 10) 
+
+# 7. Weather plot ####
+
+Weather <- read.csv("data/Meteocat_temp.csv", fileEncoding="latin1", na.strings=c("","NA")) # Field sheet with weather data from Meteocat station within the experimental station
+
+Weather$Date2 <- as.Date(Weather$Date2)
+
+pdf("outputs/Meteocat_temp.pdf", width = 7, height = 5)
+
+plot(Weather$Date2, Weather$CAT_temp_med, type = "l", col = "red", lwd = 2, # Left y-axis: temperature.
+        ylab = "", xlab = "Month",
+        ylim = range(c(0, 30)))
+axis(side = 2, col.axis = "red", col = "red", lwd = 2)  # Right y-axis
+
+par(new = TRUE)  # Allow for a second plot
+plot(Weather$Date2, Weather$PPT, type = "l", col = "blue", lwd = 2, 
+       axes = FALSE, xlab = "", ylab = "", 
+       ylim = range(c(0, 100)))
+
+axis(side = 4, col.axis = "blue", col = "blue", lwd = 2)  # Right y-axis
+
+# text(par("usr")[2], mean(Weather$PPT), labels = "Precipitation (mm)", 
+     # srt = 180, xpd = TRUE, col = "blue", pos = 4)
+ 
+legend("topright", legend = c("Temperature (ºC)", "Precipitation (mm)"), 
+       col = c("red", "blue"), lwd = 2)
+
+dev.off()
+
+# 8. Mesocosm vs field conditions plot #### 
+# Supporting mesocosms being representative of field conditions. 
+
+Field_FS_phys <- read.csv("data/2017-2019-PostCollita_BASE DADES GEH.csv", fileEncoding="latin1", na.strings=c("","NA")) # Field sheet with physicochemical data years 2017/18 (Maria Belenguer's paper)
+
+Field_FS_phys <- Field_FS_phys %>% 
+  filter(Sampling_date != "2017-10-20") # date removed due to note on field sheet about not trusting the measured values
+
+Field_FS_phys_2017_18 <- Field_FS_phys %>% # Field Physicochemical parameters FS 2017
+        filter(Year %in% c(2017, 2018),
+               Month %in% c(10, 11, 12),
+               Tr1 == "WFL",
+               Tr2 == "ESI") %>%
+        select(Sampling_date, Year, Conduct_microS_cm, pH_soil, Temp_10_cm, Redox_pot)
+Field_FS_phys_2017_18$Sampling_date <- as.Date(Field_FS_phys_2017_18$Sampling_date)
+Field_FS_phys_2017_18$Year <- as.character(Field_FS_phys_2017_18$Year)
+Field_FS_phys_2017_18$Month <- format(Field_FS_phys_2017_18$Sampling_date, "%B")
+
+Meso_FS_phys_2023 <- Master_GHG_2023_phys_noNA %>% 
+        filter(Season == "PH") %>%
+        select(Sampling_date, Conduct_microS_cm, pH_soil, Temp_10_cm, Redox_pot)
+Meso_FS_phys_2023$Year <- format(Meso_FS_phys_2023$Sampling_date, "%Y") 
+Meso_FS_phys_2023$Month <- format(Meso_FS_phys_2023$Sampling_date, "%B")
+
+Meso_vs_Field <- bind_rows(Field_FS_phys_2017_18, Meso_FS_phys_2023) %>% 
+        filter(!is.na(Conduct_microS_cm)) %>% 
+        filter(!is.na(pH_soil)) %>%
+        group_by(Sampling_date, Year, Month) %>% 
+        summarize(avg_Conduct_microS_cm = mean(Conduct_microS_cm),
+                  avg_pH_soil = mean(pH_soil),
+                  avg_Temp_10_cm = mean(Temp_10_cm),
+                  avg_Redox_pot = mean(Redox_pot)) %>%
+        mutate(Month_day = format(Sampling_date, "%m-%d")) %>%
+        mutate(Month = factor(Month, levels = c("October", "November", "December")))
+
+Physchem_vars <- c("avg_Temp_10_cm", "avg_Conduct_microS_cm", "avg_pH_soil")
+
+y_axis_labels <- c(
+        avg_Temp_10_cm = "Soil Temperature (10 cm) (°C)",
+        avg_Conduct_microS_cm = "Soil Conductivity (µS/cm)",
+        avg_pH_soil = "Soil pH"
+)
+
+line_types <- c("2017" = "dotted", "2018" = "dotdash", "2023" = "solid")
+
+plot_list <- list()
+
+for (i in Physchem_vars) {
+  
+Meso_vs_Field_Plot <- ggplot(Meso_vs_Field, aes(x = Month_day, y = .data[[i]], linetype  = as.factor(Year), group = interaction(Year))) +
+        geom_line() +
+        labs(x = "Date (MM-DD)", y = y_axis_labels[i], linetype = "Year") +
+        theme_bw() +
+        scale_linetype_manual(values = line_types) + 
+        theme(
+          legend.text = element_text(size = 14),
+          legend.title = element_blank(),
+          axis.title.y = element_text(size = 14),
+          axis.text.y = element_text(size = 14),
+          legend.position = if (i == "avg_Temp_10_cm") c(0.95, 0.8) else "none",
+          axis.title.x = if (i == "avg_pH_soil") element_text(size = 14) else element_blank(),  # Only include x-axis title in the third plot
+          axis.text.x = if (i == "avg_pH_soil") element_text(size = 14) else element_blank())  # Only include x-axis text in the third plot)
+
+plot_list[[i]] <- Meso_vs_Field_Plot
+}
+  
+Meso_vs_Field_Plot <- plot_list[[1]] / plot_list[[2]] / plot_list[[3]]  
+print(Meso_vs_Field_Plot)
+ggsave("outputs/Meso_vs_Field_Plot.pdf", Meso_vs_Field_Plot, width = 14, height = 10)

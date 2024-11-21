@@ -408,7 +408,16 @@ Avg_Acc_CHROM_tot_sum <- Acc_CHROM_tot_sum %>%
                                     mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
                                     mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()),
                                     mean_Yield_Mgha_14perc = mean(Yield_Mgha_14perc), se_Yield_Mgha_14perc = sd(Yield_Mgha_14perc) / sqrt(n()),
-                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n()))
+                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n())) %>% 
+                            mutate(GWP_CON = mean_GWP[Treat == "CON"], 
+                                   GWP_var_vs_CON = (-1) * (GWP_CON - mean_GWP) / GWP_CON * 100,
+                                   GWPY_CON = mean_GWPY[Treat == "CON"],
+                                   GWPY_var_vs_CON = (-1) * (GWPY_CON - mean_GWPY) / GWPY_CON * 100,
+                                   CCH4_kgha_CON = mean_CCH4_kgha_tot[Treat == "CON"],
+                                   CCH4_kgha_var_vs_CON = (-1) * (CCH4_kgha_CON - mean_CCH4_kgha_tot) / CCH4_kgha_CON * 100,
+                                   Yield_CON = mean_Yield_Mgha_14perc[Treat == "CON"],
+                                   Yield_var_vs_CON = (-1) * (Yield_CON - mean_Yield_Mgha_14perc) / Yield_CON * 100
+                            ) 
 
 # ii) Summarized df for GS cumulative emissions plot:
 
@@ -440,7 +449,16 @@ Avg_Acc_CHROM_GS_sum <- Acc_CHROM_GS_sum %>%
                                     mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
                                     mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()),
                                     mean_Yield_Mgha_14perc = mean(Yield_Mgha_14perc), se_Yield_Mgha_14perc = sd(Yield_Mgha_14perc) / sqrt(n()),
-                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n()))
+                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n())) %>% 
+                          mutate(GWP_CON = mean_GWP[Treat == "CON"], 
+                                 GWP_var_vs_CON = (-1) * (GWP_CON - mean_GWP) / GWP_CON * 100,
+                                 GWPY_CON = mean_GWPY[Treat == "CON"],
+                                 GWPY_var_vs_CON = (-1) * (GWPY_CON - mean_GWPY) / GWPY_CON * 100,
+                                 CCH4_kgha_CON = mean_CCH4_kgha_tot[Treat == "CON"],
+                                 CCH4_kgha_var_vs_CON = (-1) * (CCH4_kgha_CON - mean_CCH4_kgha_tot) / CCH4_kgha_CON * 100,
+                                 Yield_CON = mean_Yield_Mgha_14perc[Treat == "CON"],
+                                 Yield_var_vs_CON = (-1) * (Yield_CON - mean_Yield_Mgha_14perc) / Yield_CON * 100
+                          ) 
 
 # iv) Summarized df for PH cumulative emissions plot:
 
@@ -471,4 +489,14 @@ Avg_Acc_CHROM_PH_sum <- Acc_CHROM_PH_sum %>%
                                     mean_CCH4_kgha_tot = mean(CCH4_kgha_tot), se_CCH4_kgha_tot = sd(CCH4_kgha_tot) / sqrt(n()),
                                     mean_NN2O_kgha_tot = mean(NN2O_kgha_tot), se_NN2O_kgha_tot = sd(NN2O_kgha_tot) / sqrt(n()),
                                     mean_Yield_Mgha_14perc = mean(Yield_Mgha_14perc), se_Yield_Mgha_14perc = sd(Yield_Mgha_14perc) / sqrt(n()),
-                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n()))
+                                    mean_GWPY = mean(GWPY), se_GWPY = sd(GWPY) / sqrt(n())) %>% 
+                          mutate(GWP_CON = mean_GWP[Treat == "CON"], 
+                                 GWP_var_vs_CON = (-1) * (GWP_CON - mean_GWP) / GWP_CON * 100,
+                                 GWPY_CON = mean_GWPY[Treat == "CON"],
+                                 GWPY_var_vs_CON = (-1) * (GWPY_CON - mean_GWPY) / GWPY_CON * 100,
+                                 CCH4_kgha_CON = mean_CCH4_kgha_tot[Treat == "CON"],
+                                 CCH4_kgha_var_vs_CON = (-1) * (CCH4_kgha_CON - mean_CCH4_kgha_tot) / CCH4_kgha_CON * 100,
+                                 Yield_CON = mean_Yield_Mgha_14perc[Treat == "CON"],
+                                 Yield_var_vs_CON = (-1) * (Yield_CON - mean_Yield_Mgha_14perc) / Yield_CON * 100
+                          ) 
+

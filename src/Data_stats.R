@@ -5,19 +5,19 @@ library(dplyr)
 library(vioplot)
 library(ggplot2)
 library(vegan)
-library(usdm) # for vif()
-library(Hmisc) # for varclus()
-library(dendextend) # solves issues with as.dendrogram()
-library(glmmTMB) # for glmmTMB()
+library(usdm)         # for vif()
+library(Hmisc)        # for varclus()
+library(dendextend)   # solves issues with as.dendrogram()
+library(glmmTMB)      # for glmmTMB()
 library(RColorBrewer) # for brewer.pal.info[] in dendrograms
 library(emmeans)
 library(DHARMa)
 library(randomForest) # for check_distribution()
-library(visreg) # Plotting conditional residuals
+library(visreg)       # Plotting conditional residuals
 
 # 1. Research question and hypotheses ####
 
-# a. Are there Legacy effects of Treat implemented on GS over emissions in FS? Or, are there differences 
+# a. Are there Legacy effects of Treat implemented on GS over emissions in FS? 
 
 # a. Is there a GS Treat effect on C-CH4 and N-N2O emitted during the growing season (GS)?
 #    potential_model: GS_GHG_flux ~ Treat*Season
@@ -46,6 +46,8 @@ Master_GHG_2023_phys_noNA <- subset(Master_GHG_2023_phys, is.na(Chrom_CH4_flux_c
 Master_GHG_2023_phys_noNA <- Master_GHG_2023_phys_noNA %>%
                  arrange(Sampling_date) %>%
                  mutate(Sampling = match(Sampling_date, unique(Sampling_date)))
+
+write_xlsx(Master_GHG_2023_phys_noNA, "outputs/CERESTRES_results/Master_GHG_2023_phys_noNA.xlsx") # Excel file with Master_GHG_2023_phys_noNA
 
 ## 2.1. Check for outliers ####
 
@@ -318,14 +320,14 @@ hist(Master_GHG_2023_phys_noNA$Chrom_CH4_flux_corrected)
 
 # Complete model - glmm:
 CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Sampling + Water_level_corr + Temp_soil +
-                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + Redox_pot + (1|Rep), family = tweedie())
+                         Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) # Redox removed to avoid message (note below)
 
-# Note: This model results in the Warning message: In (function (start, objective, gradient = NULL, hessian = NULL,  :
+# Note: When considering Redox_pot, the model results in the Warning message: In (function (start, objective, gradient = NULL, hessian = NULL,  :
 # NA/NaN function evaluation
 # So the model removing Redox_pot is tested:
 # CH4_mod_tot <- glmmTMB(data = Master_GHG_2023_phys_noNA, Chrom_CH4_flux_corrected ~ Treat*Season + Water_level_corr + Temp_soil +
 #                          Rice_cover_prop + Env_temp_final_cor + Conduct_microS_cm + pH_soil + (1|Rep), family = tweedie()) 
-# Resulting in same significances in ANOVA to model with Redox_pot. We decide to keep the variable.
+# Resulting in same significances in ANOVA to model with Redox_pot. We decide to remove the variable.
 
 # Model diagnostics:
 DHARMa::simulateResiduals(CH4_mod_tot, plot = T)
@@ -341,11 +343,18 @@ visreg(CH4_mod_tot, scale="response") # Plotting conditional residuals
 emmeans(CH4_mod_tot, ~Treat , type = "response")
 pairs(emmeans(CH4_mod_tot, ~Treat , type = "response"))
 
-emmeans(CH4_mod_tot, ~Treat|Season, type = "response")
-pairs(emmeans(CH4_mod_tot, ~Treat|Season, type = "response"))
+emmeans(CH4_mod_tot, ~Treat|Season, type = "response", adjust = "bonferroni")
+pairs(emmeans(CH4_mod_tot, ~Treat|Season, type = "response", adjust = "bonferroni"))
 
-emmeans(CH4_mod_tot, ~Season , type = "response")
-pairs(emmeans(CH4_mod_tot, ~Season , type = "response"))
+
+
+
+summary(pairs(emmeans(CH4_mod_tot, ~Treat|Season, type = "response")), adjust = "none") # removes bonferroni correction
+
+
+
+emmeans(CH4_mod_tot, ~Season , type = "response", adjust = "none")
+pairs(emmeans(CH4_mod_tot, ~Season , type = "response", adjust = "none"))
 
 emmeans(CH4_mod_tot, ~Season|Treat, type = "response")
 pairs(emmeans(CH4_mod_tot, ~Season|Treat, type = "response"))
@@ -421,6 +430,14 @@ pairs(emmeans(CH4_mod_Full_PH_events, ~Season , type = "response"))
 emmeans(CH4_mod_Full_PH_events, ~Season|Treat, type = "response")
 pairs(emmeans(CH4_mod_Full_PH_events, ~Season|Treat, type = "response"))
 
+### 3.2.6. Average flux variation per season and treatment####
+
+Avg_flux_variation <- Master_GHG_2023_phys_noNA %>% 
+                        group_by(Season, Treat) %>% 
+                        summarise(avg_Chrom_CH4_flux = mean(Chrom_CH4_flux_corrected)) %>% 
+                        mutate(CON_flux = avg_Chrom_CH4_flux[Treat == "CON"],
+                               var_perc_vs_CON = (-1) * (CON_flux - avg_Chrom_CH4_flux) / CON_flux * 100) 
+
 ## 3.3. CH4 - Cumulative emissions #### 
 
 ### 3.3.1. CH4 - GS #### 
@@ -433,8 +450,20 @@ KW_CH4_acc_GS <- kruskal.test(CCH4_kgha_tot ~ Treat, data = Acc_CH4_GS_KWdf)
 print(KW_CH4_acc_GS)
 
 # Post-Hoc Analysis: pairwise Wilcoxon tests
-Wilcox_CH4_acc_GS<- pairwise.wilcox.test(Acc_CH4_GS_KWdf$CCH4_kgha_tot, Acc_CH4_GS_KWdf$Treat, p.adjust.method = "holm")
+Wilcox_CH4_acc_GS<- pairwise.wilcox.test(Acc_CH4_GS_KWdf$CCH4_kgha_tot, Acc_CH4_GS_KWdf$Treat, p.adjust.method = "bonferroni")
 print(Wilcox_CH4_acc_GS)
+
+Wilcox_CH4_acc_GS <- pairwise.wilcox.test(Acc_CH4_GS_KWdf$CCH4_kgha_tot, Acc_CH4_GS_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_CH4_acc_GS)
+
+Wilcox_CH4_acc_GS <- pairwise.wilcox.test(Acc_CH4_GS_KWdf$CCH4_kgha_tot, Acc_CH4_GS_KWdf$Treat, p.adjust.method = "none")
+print(Wilcox_CH4_acc_GS)
+
+Wilcox_CH4_acc_GS <- pairwise.wilcox.test(Acc_CH4_GS_KWdf$CCH4_kgha_tot, Acc_CH4_GS_KWdf$Treat)
+print(Wilcox_CH4_acc_GS)
+
+Wilcox_CH4_acc_GS <- pairwise.wilcox.test(Acc_CH4_GS_KWdf$CCH4_kgha_tot, Acc_CH4_GS_KWdf$Treat, p.adjust.method = "none", alternative = "greater")
+print(Wilcox_CH4_acc_GS) # test 1 tail
 
 ### 3.3.2. CH4 - PH #### 
 
@@ -454,6 +483,33 @@ print(Wilcox_CH4_acc_PH)
 
 Wilcox_CH4_acc_PH <- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "none")
 print(Wilcox_CH4_acc_PH)
+
+Wilcox_CH4_acc_PH <- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "none", alternative = "greater")
+print(Wilcox_CH4_acc_PH) # test 1 tail
+
+### 3.3.3. CH4 - Overal year #### 
+
+# Non-parametric Kruskal-Wallis Test is performed due to just having three observations (Plots) per group (Treat).
+Acc_CH4_tot_KWdf <- Acc_CHROM_tot_sum %>% 
+  select(Plot, Treat, CCH4_kgha_tot)
+
+KW_CH4_acc_tot <- kruskal.test(CCH4_kgha_tot ~ Treat, data = Acc_CH4_tot_KWdf)
+print(KW_CH4_acc_tot)
+
+# Post-Hoc Analysis: pairwise Wilcoxon tests
+Wilcox_CH4_acc_tot <- pairwise.wilcox.test(Acc_CH4_tot_KWdf$CCH4_kgha_tot, Acc_CH4_tot_KWdf$Treat, p.adjust.method = "bonferroni")
+print(Wilcox_CH4_acc_tot)
+
+Wilcox_CH4_acc_tot <- pairwise.wilcox.test(Acc_CH4_tot_KWdf$CCH4_kgha_tot, Acc_CH4_tot_KWdf$Treat, p.adjust.method = "holm")
+print(Wilcox_CH4_acc_tot)
+
+Wilcox_CH4_acc_tot <- pairwise.wilcox.test(Acc_CH4_tot_KWdf$CCH4_kgha_tot, Acc_CH4_tot_KWdf$Treat, p.adjust.method = "none")
+print(Wilcox_CH4_acc_tot)
+
+
+
+Wilcox_CH4_acc_PH <- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "none", alternative = "greater")
+print(Wilcox_CH4_acc_PH) # test 1 tail
 
 ## 3.4. GWP - GWPY #### 
 
