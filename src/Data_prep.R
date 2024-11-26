@@ -241,7 +241,7 @@ Master_GHG_2023_phys  <- Master_GHG_2023  %>%
 ## 3.2. Complete missing temperature with met. station ####
 # If either Env_temp_initial or Env_temp_final were not recorded, average temperature from the local meteorological station is taken
 
-met_stat<- read.csv("data/Meteocat_temp.csv", fileEncoding="latin1", na.strings=c("","NA")) # Data from local met station
+met_stat<- read.csv("data/Meteocat_temp2.csv", fileEncoding="latin1", na.strings=c("","NA")) # Data from local met station
 met_stat$Sampling_date <- as.Date(met_stat$Sampling_date)
 
 Master_GHG_2023_phys <- Master_GHG_2023_phys %>%
