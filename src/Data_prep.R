@@ -6,6 +6,8 @@ library(zoo)
 library(writexl)
 library(gridExtra)
 library(cowplot)
+library(readr)
+library(dplyr)
 
 # 1. Creating Master dataframe: Master_GHG_2023 ####
 
@@ -392,7 +394,7 @@ Acc_CHROM_tot_sum <- Acc_CHROM %>%
 
 Acc_CHROM_tot_sum$Treat <- factor(Acc_CHROM_tot_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
-Acc_CHROM_tot_sum$GWP <- (Acc_CHROM_tot_sum$CH4_kgha_tot * 25) + (Acc_CHROM_tot_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
+Acc_CHROM_tot_sum$GWP <- (Acc_CHROM_tot_sum$CH4_kgha_tot * 27) + (Acc_CHROM_tot_sum$N2O_kgha_tot * 273) # Factors from "IPCC, 2021 - The Physical Science Basis"
 
 Acc_CHROM_tot_sum <- merge(x = Acc_CHROM_tot_sum, y = Yield_2023[, c("Plot", "Yield_Mgha_14perc")], all.x = TRUE) # Importing Yield data
 
@@ -433,7 +435,7 @@ Acc_CHROM_GS_sum <- Acc_CHROM %>%
 
 Acc_CHROM_GS_sum$Treat <- factor(Acc_CHROM_GS_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
-Acc_CHROM_GS_sum$GWP <- (Acc_CHROM_GS_sum$CH4_kgha_tot * 25) + (Acc_CHROM_GS_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
+Acc_CHROM_GS_sum$GWP <- (Acc_CHROM_GS_sum$CH4_kgha_tot * 27) + (Acc_CHROM_GS_sum$N2O_kgha_tot * 273) # Factors from "IPCC, 2007 - The Physical Science Basis"
 
 Acc_CHROM_GS_sum <- merge(x = Acc_CHROM_GS_sum, y = Yield_2023[, c("Plot", "Yield_Mgha_14perc")], all.x = TRUE) # Importing Yield data
 
@@ -473,7 +475,7 @@ Acc_CHROM_PH_sum <- Acc_CHROM_PH %>%
 
 Acc_CHROM_PH_sum$Treat <- factor(Acc_CHROM_PH_sum$Treat, levels = c('CON', 'MSD', 'AWD')) # Treat to factor to reorder ggplot x axis
 
-Acc_CHROM_PH_sum$GWP <- (Acc_CHROM_PH_sum$CH4_kgha_tot * 25) + (Acc_CHROM_PH_sum$N2O_kgha_tot * 298) # Factors from "IPCC, 2007 - The Physical Science Basis"
+Acc_CHROM_PH_sum$GWP <- (Acc_CHROM_PH_sum$CH4_kgha_tot * 27) + (Acc_CHROM_PH_sum$N2O_kgha_tot * 273) # Factors from "IPCC, 2007 - The Physical Science Basis"
 
 Acc_CHROM_PH_sum <- merge(x = Acc_CHROM_PH_sum, y = Yield_2023[, c("Plot", "Yield_Mgha_14perc")], all.x = TRUE) # Importing Yield data
 

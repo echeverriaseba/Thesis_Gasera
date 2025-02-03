@@ -506,8 +506,6 @@ print(Wilcox_CH4_acc_tot)
 Wilcox_CH4_acc_tot <- pairwise.wilcox.test(Acc_CH4_tot_KWdf$CCH4_kgha_tot, Acc_CH4_tot_KWdf$Treat, p.adjust.method = "none")
 print(Wilcox_CH4_acc_tot)
 
-
-
 Wilcox_CH4_acc_PH <- pairwise.wilcox.test(Acc_CH4_PH_KWdf$CCH4_kgha_tot, Acc_CH4_PH_KWdf$Treat, p.adjust.method = "none", alternative = "greater")
 print(Wilcox_CH4_acc_PH) # test 1 tail
 

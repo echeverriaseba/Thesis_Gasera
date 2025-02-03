@@ -43,8 +43,8 @@ Water_plot_2023b <- ggplot(Avg_water_level3, aes(x = Sampling_date, color = Trea
                                   axis.title.y.right = element_text(color = "black"),
                                   axis.text.y.right = element_text(color = "black"), strip.background = element_blank(),
                                   strip.placement = "outside",
-                                  plot.margin = unit(c(0, 1, 1, 1.35), "lines"))+
-                            scale_x_date(limits = as.Date(c("2023-05-24", "2023-12-15")), breaks = date_breaks, date_labels = "%m.%d")
+                                  plot.margin = unit(c(0, 1, 1, 1.35), "lines")) +
+                            scale_x_date( breaks = date_breaks, date_labels = "%m.%d")
 
 print(Water_plot_2023b) # Water level all treats
 
