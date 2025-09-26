@@ -1,5 +1,7 @@
-# Thesis_Gasera
-GHG emission rate calculation out of Gasera samplings
+# Climate change mitigation through irrigation strategies during rice growing season is off-set in fallow season
+Open access article: [Journal of Environmental Management]([https://doi.org/10.1016/j.agee.2025.109719](https://doi.org/10.1016/j.jenvman.2025.125060)).
+
+Contact: secheverriap@gmail.com (do not hesitate to contact in case you have any doubts using this material).
 
 1. R Project: Thesis_Gasera
 2. /src: R scripts.
