@@ -1,32 +1,26 @@
 # Climate change mitigation through irrigation strategies during rice growing season is off-set in fallow season
-Open access article: [Journal of Environmental Management]([https://doi.org/10.1016/j.agee.2025.109719](https://doi.org/10.1016/j.jenvman.2025.125060)).
+Open access article: [Journal of Environmental Management](https://doi.org/10.1016/j.jenvman.2025.125060).
 
 Contact: secheverriap@gmail.com (do not hesitate to contact in case you have any doubts using this material).
 
+## Index
 1. R Project: Thesis_Gasera
 2. /src: R scripts.
-3. /data: data inputs (e.g. .csv, .xlsx)
+3. /data: data inputs (e.g. .csv, .xlsx). All data colected across the sampling campaign 2023.
 4. /outputs: analysis outputs (e.g., plots, .csv, etc.)
 
 ## /src: R scripts
-Here the main scripts used for data preparation, plotting and statistical analyses are described. Other scripts can be found in this folder containing coding tests. 
+Description of the main scripts used for data preparation, plotting and statistical analyses: 
 
-### Main: GHG emission calculation from Gasera samplings
-- Field sampling data in "data/CERESTRES_Gasera_results". All output ".meas" files from Gasera field samplings should be stored here.
-- Gasera files nomenclature:
-  - Digits/Letters 1 - 3: Experiment (e.g. CER for "CERESTRES")
-  - Digits/Letters 4 - 6: Plot (e.g. P01)
-  - Digits/Letters 7 - 8: Chamber type (i.e. TR for transparent chambers, DK for dark ones)
-  - Digits/Letters 9: _
-  - Digits/Letters 10 - onwards: Date, time and gasera code (e.g. 2023-06-20_10-10-49_030077)
-  - Example: CERP01DK_2023-06-20_10-10-49_030077
-- for in loops for CH4, N2O and CO2 emission calculations.
-- Accumulated emissions during all the growing season.
+### Main_w_corrections_2023: Calculating original CH<sub>4</sub> emission rates from sampled GHG concentration through gas chromatography.
+- Creating "Chrom_w_corrections_2023" dataframe, which calculates GHG concentrations in mg m<sup>-2</sup> from C-ppm chromatography results.
+- Calculating emission rates through lm(), also R<sup>2</sup> for each lm() to apply posterior model corrections.
+- Fitting 4 alternative "3-values" models (each one removing one time-step) and then selecting that which achieves higher R<sup>2</sup> and positive rate (lm slope).
 
-### Data_prep: Creating Master_GHG_2023 dataframe with emissions from Chromatography and Gasera, physiochemichal data and Water level calculations
+### Data_prep:
 - Inputs:
-  a. Emission_rates_w_corrections_2023.RData: Chromatography GHG rates. Previously calculated in Rproject Thesis_Chromatography.
-  b. Gasera_emission_rates_2023.RData: Gasera GHG rates. Previously calculated in Main script.
+  a. Emission_rates_w_corrections_2023 dataframe: Chromatography GHG rates. Previously calculated in Main_w_corrections_2023 script.
+
   
 ### Data_visual: Plotting data from Data_prep
 
