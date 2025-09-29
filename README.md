@@ -12,7 +12,8 @@ Contact: secheverriap@gmail.com. Please do not hesitate to contact in case you h
 ## /src: R scripts
 Description of the main scripts used for data preparation, plotting and statistical analyses: 
 
-### Main_w_corrections_2023: Calculating CH<sub>4</sub> emission rates from sampled GHG concentration through gas chromatography. Rates calculated from complete (all 4 timesteps - vials) and alternative (drop-one-timestep) models.
+### Main_w_corrections_2023: 
+Calculating CH<sub>4</sub> emission rates from sampled GHG concentration through gas chromatography. Rates calculated from complete (all 4 timesteps - vials) and alternative (drop-one-timestep) models.
 - Creating "Chrom_w_corrections_2023" dataframe, which calculates GHG concentrations in mg m<sup>-2</sup> from C-ppm chromatography results.
 - Calculating emission rates through lm(), also R<sup>2</sup> for each lm() to apply posterior model corrections.
 - Fitting 4 alternative "drop-one-timestep" models (each one removing one timestep) and then selecting that which achieves higher R<sup>2</sup> and positive rate (lm slope).
@@ -27,11 +28,12 @@ Description of the main scripts used for data preparation, plotting and statisti
 ### Data_prep:
 - Inputs:
   - Emission_rates_w_corrections_2023 dataframe: Chromatography GHG rates. Previously calculated in Main_w_corrections_2023 script.
+ 
+### Data_visual: 
+Plotting data from Data_prep
 
-  
-### Data_visual: Plotting data from Data_prep
-
-### Data_stats: Data analysis
+### Data_stats: 
+Data analysis
 1. Research question and hypotheses
 2. Data exploration according to: A protocol for data exploration to avoid common statistical problems - Zuur et al., 2010.
 - 2.1. Check for outliers.
